@@ -1,0 +1,297 @@
+<div role="tabpanel" class="tab-pane fade active in" id="wait-verify" aria-labelledby="wait-verify-tab" ng-class="{true: 'tab-pane fade active in', false: 'tab-pane fade'}[true]"  >
+    <div class="row">
+        <div class="col-md-12 nlu-appmodel-table" >
+            <ul id="myTab2" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active" onclick="wait_verify_query_click()">
+                    <a onclick="wait_verify_query_click(this)" href="#instance-tab-div" id="instance-tab" role="tab" data-toggle="tab" aria-controls="instance-tab-div" aria-expanded="true">实例待审核</a>
+                </li>
+                <li role="presentation" onclick="wait_verify_pattern_click()">
+                    <a href="#template-tab-div" onclick="wait_verify_pattern_click(this)" role="tab" id="template-tab" data-toggle="tab" aria-controls="template-tab-div" aria-expanded="false">模板待审核</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+  <div id="myTabContent2" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" id="template-tab-div" aria-labelledby="template-tab">
+                    <div class="row">
+                        <div class="col-md-12 tab-content">
+<label style="margin-left: 15px">总数:{{pattern.setting.total_num}}</label>
+                        <div class="col-md-12" style="margin-top: 35px">
+
+                          <div class="input-group nlu-search-verify">
+                                                        <input ng-model= "pattern_query_search_input" type="text" class="form-control" placeholder="请输入关键字搜索" id="pattern_query_search">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-default" type="button">
+                                                                <span class="glyphicon glyphicon-search" ng-model="pattern_query_search" ng-click = "goto_page_judge_pattern('1',pattern_query_search_input)"></span>
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                            <!-- /input-group -->
+                            <div class="form-horizontal form-group nlu-search-verify-only-see">
+                                                        <label for="intent" class="col-sm-3 control-label">只看</label>
+                                                        <div class="col-sm-8">
+                                                            <select  id = "zhikan_user_pattern" ng-model= "zhikan_user_pattern" ng-change="goto_page_judge_pattern(1,pattern_query_search_input)" class="form-control "
+
+                                                            placeholder="选择标注者ID">
+                                                                <option value="init_option">
+                                                                全部
+                                                                </option>
+                                                                <option ng-repeat="user in pattern.userlist"  value="{{user.user_id}}">{{user.user_id}}
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+
+                            <table class="table table-condensed table-bordered table-hover">
+                                <thead>
+                        <!--             <th>序号</th> -->
+                                    <th>pattern</th>
+                                    <th>意图</th>
+                                    <!-- <th>需求</th> -->
+                                    <th>槽位取值</th>
+                                   <!--  <th>BOT动作</th> -->
+                                    <th>标注者</th>
+                                    <th>
+                                        <div class="checkbox">
+                                            <label>
+                                                <input value="{{ng_item.id}}" id="check_box_all_pattern_wait_verify" type="checkbox" ng-change="change_all_pattern_checkbox()" ng-model="
+                                                                        confirmed_all_wait_verified" /> 全选
+                                            </label>
+                                        </div>
+                                    </th>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="ng_item in pattern.response_data.data">
+                                    <!--     <td  >{{$index + 1}}</td> -->
+                                        <td style="text-align:left" >{{ng_item.pattern}}</td>
+                                    <!--      <td ng-if= "ng_item.func_slot!=''" style="text-align:left" >{{ng_item.intent}}@{{ng_item.func_slot}}</td>
+                                        <td ng-if= "!ng_item.func_slot!=''" style="text-align:left" >{{ng_item.intent}}</td> -->
+                                        <td style="text-align:left" >{{ng_item.intent}}</td>
+                                   <!--      <td></td> -->
+                                        <td style="text-align:left" ng-bind-html="ng_item.slots | to_trusted">
+                                        </td>
+                                        <!-- <td>{{ng_item.pre_action}}</td> -->
+                                        <td style="text-align:left" >{{ng_item.user_id}}</td>
+                                        <td >
+                                            <input id="check_box_pattern_wait_verify_{{ng_item.id}}" value="{{ng_item.id}}" type="checkbox" name="choose">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div row>
+                                <div style="margin-left: 30px" class="nlu-label-ext">
+                                   <!--  <a href="" class="btn btn-default">标注扩展</a>
+                                    <a href="" class="btn btn-default">标注扩展</a> -->
+                                    <a class="btn btn-default" data-toggle="modal" data-target="#import_intervention">导入</a>
+                <!-- copy Modal -->
+                <div class="modal fade" id="import_intervention" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                <h4 class="modal-title" id="myModalLabel">导入</h4>
+                            </div>
+                            <div class="modal-body">
+                                <br>
+                                <form class="form-horizontal" role="form" id="form_import_intervention_pattern">
+                                <div class="form-group">
+                                         <label for="query"  class="col-sm-2 control-label">样本文件</label>
+                                        <div class="col-sm-10">
+                                           <a href = "/intervene/patternsample">点击下载</a>
+                                        </div>
+                                    </div>
+                                         <div class="form-group">
+                                         <label for="query"  class="col-sm-2 control-label">导入文件</label>
+                                        <div class="col-sm-10">
+                                            <input type="file" class="form-control" name="file_name_test" id="intput_import_wait_intervention">
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" ng-click="upload_file('0','pattern')">导入</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancel_import_intervention_pattern">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                                    <a href="/intervene/patternexport?appid={{appid}}&status=0" class="btn btn-default">导出</a>
+                                    <div style="margin-right: 30px"  class="nlu-action">
+                                        <a class="btn btn-info" href="/all/index?appid={{appid}}" >返回应用全景</a>
+                                        <button ng-click="sent_back_pattern()" class="btn btn-nlu">打回</button>
+                                        <button href="" ng-click="pass_pattern()" class="btn btn-primary">通过</button>
+                                        <button href="" ng-click="pass_pattern(1)" class="btn btn-primary">全部通过</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-left: 30px; margin-bottom: 30px" class="btn-toolbar nlu-page">
+                                <div class="btn-toolbar">
+                                    <div class="btn-group">
+                                        <button class="btn btn-default" ng-click="goto_page_jduge_pattern(1, '');"><i class="icon-step-backward"></i> 首页</button>
+                                        <button class="btn btn-default" ng-click="goto_page_judge_pattern(pattern.setting.cur_page - 1, '');"><i class="icon-chevron-left"></i> 上一页</button>
+                                        <button class="btn btn-primary">{{pattern.setting.cur_page}}</button>
+                                        <button class="btn btn-default" ng-click="goto_page_judge_pattern(pattern.setting.cur_page + 1, '');">下一页 <i class="icon-chevron-right"></i></button>
+                                        <button class="btn btn-default" ng-click="goto_page_judge_pattern(pattern.    setting.total_page, '');">末页 <i class="icon-step-forward"></i></button>
+                                        <button class="btn btn-default disabled">共({{pattern.setting.total_num}}项，共{{pattern.setting.total_page}}页)</button>
+                                        <div class="input-group input-group col-md-2">
+                                            <input type="text" class="form-control" id="model_list_goto_page" value="{{goto_some_page}}" placeholder="跳转页" ng-model="goto_some_page">
+                                            <span class="input-group-btn">
+                                                            <button class="btn btn-default" type="button" ng-click="goto_page_pattern(goto_some_page);" ><span class="glyphicon glyphicon-search" ></span></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade active in" id="instance-tab-div" aria-labelledby="instance-tab">
+                    <div class="row">
+                        <div class="col-md-12 nlu-appmodel-table">
+                            <label style="margin-left: 15px">总数:{{query.setting.total_num}}</label>
+                              <div class="col-md-12" style="margin-top: 35px">
+
+                          <div class="input-group nlu-search-verify">
+                                                        <input ng-model= "query_query_search_input" type="text" class="form-control" placeholder="请输入关键字搜索" id="query_query_search">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-default" type="button">
+                                                                <span class="glyphicon glyphicon-search" ng-model="pattern_query_search" ng-click = "goto_page_judge_query('1',query_query_search_input)"></span>
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                            <!-- /input-group -->
+                            <div class="form-horizontal form-group nlu-search-verify-only-see">
+                                                        <label for="intent" class="col-sm-3 control-label">只看</label>
+                                                        <div class="col-sm-8">
+                                                            <select  id = "zhikan_user_query" ng-model= "zhikan_user_query" ng-change="goto_page_judge_query(1,query_query_search_input)" class="form-control "
+
+                                                            placeholder="选择标注者ID">
+                                                                <option value="init_option">
+                                                                全部
+                                                                </option>
+                                                                <option ng-repeat="user in query.userlist"  value="{{user.user_id}}">{{user.user_id}}
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                            <table class="table table-condensed table-bordered table-hover">
+                                <thead>
+                                <!--     <th>序号</th> -->
+                                    <th>query</th>
+                                    <th>意图</th>
+                                    <th>槽位取值</th>
+                                    <!-- <th>BOT动作</th> -->
+                                    <th>标注者</th>
+                                    <th>
+                                        <div class="checkbox">
+                                            <label>
+                                                <input value="{{ng_item.id}}" id="check_box_all_query_wait_verify" type="checkbox" ng-change="change_all_query_checkbox()" ng-model="
+                                                                        confirmed_all_wait_verified" /> 全选
+                                            </label>
+                                        </div>
+                                    </th>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="ng_item in  query.response_data.data">
+                                    <!--     <td  >{{$index + 1}}</td> -->
+                                        <td style="text-align:left" > {{ng_item.query}}</td>
+                                     <!--     <td ng-if= "ng_item.func_slot!=''" style="text-align:left" >{{ng_item.intent}}@{{ng_item.func_slot}}</td>
+                                        <td ng-if= "!ng_item.func_slot!=''" style="text-align:left" >{{ng_item.intent}}</td> -->
+                                        <td style="text-align:left">{{ng_item.intent}}</td>
+                                  <!--       <td></td> -->
+                                          <td style="text-align:left" ng-bind-html="ng_item.slots | to_trusted">
+                                        </td>
+                                        <!-- <td>{{ng_item.pre_action}}</td> -->
+                                        <td style="text-align:left" >{{ng_item.user_id}}</td>
+                                        <td>
+                                            <input id="check_box_query_wait_verify_{{ng_item.id}}" value="{{ng_item.id}}" type="checkbox" name="choose">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div row>
+                                <div style="margin-left: 30px" class="nlu-label-ext">
+                                 <!--    <a href="" class="btn btn-default">标注扩展</a>
+                                    <a href="" class="btn btn-default">标注扩展</a> -->
+                                    <a class="btn btn-default" data-toggle="modal" data-target="#import_intervention_query">导入</a>
+                <!-- copy Modal -->
+                <div class="modal fade" id="import_intervention_query" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                <h4 class="modal-title" id="myModalLabel">导入</h4>
+                            </div>
+                            <div class="modal-body">
+                                <br>
+                                <form class="form-horizontal" role="form" id="form_import_intervention_query">
+                                <div class="form-group">
+                                         <label for="query"  class="col-sm-2 control-label">样本文件</label>
+                                        <div class="col-sm-10">
+                                           <a href = "/intervene/querysample">点击下载</a>
+                                        </div>
+                                    </div>
+                                             <div class="form-group">
+                                         <label for="query"  class="col-sm-2 control-label">导入文件</label>
+                                        <div class="col-sm-10">
+                                            <input type="file" class="form-control" name="file_name_test" id="intput_import_wait_intervention">
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" ng-click="upload_file('0','')">导入</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancel_import_intervention_query">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                                    <a href="/intervene/export?appid={{appid}}&status=0" class="btn btn-default">导出</a>
+                                    <div style="margin-right: 30px" class="nlu-action">
+                                        <a class="btn btn-info" href="/all/index?appid={{appid}}" >返回应用全景</a>
+                                        <button ng-click="sent_back_query()" class="btn btn-nlu">打回</button>
+                                        <button href="" ng-click="pass_query()" class="btn btn-primary">通过</button>
+                                        <button href="" ng-click="pass_query(1)" class="btn btn-primary">全部通过</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-left: 30px; margin-bottom: 30px" class="btn-toolbar nlu-page">
+                                <div class="btn-toolbar">
+                                    <div class="btn-group">
+                                        <button class="btn btn-default" ng-click="goto_page_judge_query(1, '');"><i class="icon-step-backward"></i> 首页</button>
+                                        <button class="btn btn-default" ng-click="goto_page_judge_query(query.setting.cur_page - 1, '');"><i class="icon-chevron-left"></i> 上一页</button>
+                                        <button class="btn btn-primary">{{query.setting.cur_page}}</button>
+                                        <button class="btn btn-default" ng-click="goto_page_judge_query(query.setting.cur_page + 1, '');">下一页 <i class="icon-chevron-right"></i></button>
+                                        <button class="btn btn-default" ng-click="goto_page_judge_query(query.setting.total_page, '');">末页 <i class="icon-step-forward"></i></button>
+                                        <button class="btn btn-default disabled">共({{query.setting.total_num}})项，共({{query.setting.total_page}}页)</button>
+                                        <div class="input-group input-group col-md-2">
+                                            <input type="text" class="form-control" id="model_list_goto_page" value="{{goto_some_page}}" placeholder="跳转页" ng-model="goto_some_page">
+                                            <span class="input-group-btn">
+                                                            <button class="btn btn-default" type="button" ng-click="goto_page_judge_query(goto_some_page);" ><span class="glyphicon glyphicon-search" ></span></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+     <script type="text/javascript">
+                function wait_verify_query_click(){
+                     var t=setTimeout(" $('#myTab2 li:eq(0) a').tab('show');",50)
+
+                }
+                function wait_verify_pattern_click(){
+                     var t=setTimeout("    $('#myTab2 li:eq(1) a').tab('show');",50)
+                }
+            </script>

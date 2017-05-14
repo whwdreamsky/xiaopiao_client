@@ -1,0 +1,613 @@
+<div role="tabpanel" ng-class="{true: 'tab-pane fade active in', false: 'tab-pane fade'}[tab.pattern_inner_isActive]" id="intervention-query" aria-labelledby="intervention-query-tab">
+    <br>
+    <form class="form-horizontal col-md-8 nlu-margin-top27" role="form" id="query_form">
+        <div class="form-group">
+            <label for="last_intent" class="col-sm-2 control-label">上轮意图</label>
+            <div class="col-sm-8">
+                <select class="form-control" id="pre_intent">
+                    <option value="None">None</option>
+                    <option value="{{il.intent_name}}" ng-repeat="il in query.intent_list">
+                        {{il.intent_name}}<span ng-show="il.description.length>0">({{il.description}})</span>
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="last_need" class="col-sm-2 control-label">上轮需求</label>
+            <div class="col-sm-8">
+                <select class="form-control" id="pre_func_slot">
+                    <option value="None">None</option>
+                    <option value="info-ynq">用户主动单轮-信息查询类-是非问(info-ynq)</option>
+                    <option value="info-slctq">用户主动单轮-信息查询类-比较/选项问(info-slctq)</option>
+                    <option value="info">用户主动单轮-信息查询类-其他查询问(info)</option>
+                    <option value="exe">用户主动单轮-请求行为类(exe)</option>
+                    <option value="update">用户主动多轮-信息更新类(update)</option>
+                    <option value="ans-info">BOT主动多轮-用户答复类-提供信息(ans-info)</option>
+                    <option value="ans-yn">BOT主动多轮-用户答复类-是非答复(ans-yn)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="last_action" class="col-sm-2 control-label">上轮动作</label>
+            <div class="col-sm-8">
+                <select class="form-control" id="pre_action">
+                    <option value="None">None</option>
+                    <option value="{{an.action_name}}" ng-repeat="an in query.action_list">{{an.action_name}}</option>
+                </select>
+            </div>
+        </div>
+        <hr>
+        <div class="form-group">
+            <label for="query" class="col-sm-2 control-label">待干预句子</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="wait_intervene" placeholder="" onblur="do_wordseg();">
+            </div>
+            <div class="col-sm-2">
+                <button class="btn btn-default btn-block" id="query_clear_all" onclick="query_all();">清空</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="intent" class="col-sm-2 control-label">当前意图</label>
+            <div class="col-sm-8">
+                <select id="editable-select-add-intent" class="form-control" placeholder="选择或者输入一个意图" onblur="bind_intent_func_slot('editable-select-add-intent','now_func_slot')">
+                    <option value="{{il.intent_name}}:{{il.func_slot}}" ng-repeat="il in query.intent_list">{{il.intent_name}}<span ng-if="!il.description.length">({{il.description}})</span></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="intent" class="col-sm-2 control-label">当前需求</label>
+            <div class="col-sm-8">
+                <select class="form-control" id="now_func_slot" required="true" value="info">
+                    <option value="info-ynq" >用户主动单轮-信息查询类-是非问(info-ynq)</option>
+                    <option value="info-slctq">用户主动单轮-信息查询类-比较/选项问(info-slctq)</option>
+                    <option value="info">用户主动单轮-信息查询类-其他查询问(info)</option>
+                    <option value="exe">用户主动单轮-请求行为类(exe)</option>
+                    <option value="update">用户主动多轮-信息更新类(update)</option>
+                    <option value="ans-info">BOT主动多轮-用户答复类-提供信息(ans-info)</option>
+                    <option value="ans-yn">BOT主动多轮-用户答复类-是非答复(ans-yn)</option>
+                    <option value="null">请选择</option>
+
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="intent" class="col-sm-2 control-label">槽位参数</label>
+            <div class="col-sm-10">
+                <table class="table table-bordered query-slot-table" id="slot_table">
+                    <thead>
+                        <tr>
+                            <th>取词</th>
+                            <th>槽位类型</th>
+                            <!--<th>承担角色</th>-->
+                            <th>编辑</th>
+                        </tr>
+                    </thead>
+                    <tbody id="slot_tbody">
+                        <tr class="query-slot-tr copyTr" id="copyTr" style="display:none;">
+                            <td>
+                                <input name="slotMerge" type="checkbox" style="width: 10%;float: left;">
+                                <input class="" name="word" value="" title="单击编辑" placeholder="请单击输入内容" style="margin-left: 5%;width: 85%;">
+                            </td>
+                            <td>
+                                <select id="slotSelect" name="type" placeholder="输入模糊匹配">
+
+                                </select>
+                            </td>
+                            <!--<td>
+                                <input class="" name="role" value="" title="单击编辑" placeholder="请单击输入内容">
+                            </td>-->
+                            <td>
+                                <button type="button" class="btn btn-danger btn-xs" data-action="quSlotDele" onclick="qu_slot_delete(this)">
+                                    <span class="glyphicon glyphicon-trash"></span>删除
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-2">
+                <button class="btn btn-default btn-block" id="slotMerge" onclick="merge_slot_word();">合并取词</button>
+            </div>
+            <div class="col-sm-offset-4 col-sm-2">
+                <button class="btn btn-default btn-block" id="intertBtn">新增槽位</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-2">
+                <a class="btn btn-nlu btn-block" ng-click="add_query();">保存</a>
+            </div>
+            <div class="col-sm-2">
+                <button class="btn btn-nlu-blue btn-block" ng-click="intervene_effect();">生效</button>
+            </div>
+        </div>
+    </form>
+    <div class="col-md-4 nlu-margin-topm47">
+        <div class="nlu-right">
+            <div class="row nlu-label">
+                <a class="btn btn-default btn-sm">导入待干预集</a>
+                <a class="btn btn-default btn-sm">导入已干预集</a>
+                <span class="glyphicon glyphicon-export nlu-label-export-icon"></span>
+            </dxinz
+            <hr class="nlu-label-hr">
+            <div class="row">
+                <div class="form-group">
+                    <label class="nlu-wait-label col-sm-5">待干预<span class="badge badge-warning">{{query_wait_intervene.total}}</span></label>
+                    <div class="input-group input-group-sm nlu-search">
+                        <input type="text" class="form-control" placeholder="请输入关键字搜索" id="search_intervention" ng-model="search_query_intervention" value="">
+                        <span class="input-group-btn">
+                             <button class="btn btn-default btn-sm" type="button" ng-click="get_query_list('wait', 1, '2', search_query_intervention)"><span class="glyphicon glyphicon-search" ></span></button>
+                        </span>
+                    </div>
+                    <!-- /input-group -->
+                </div>
+                <!-- /form-group -->
+            </div>
+            <!-- /row -->
+            <!-- <hr class="nlu-label-hr-light"> -->
+            <div class="row">
+                <div class="nlu-label-table">
+                    <table class="table table-condensed col-md-8">
+                        <tbody>
+                            <tr ng-repeat="wi in query_wait_intervene.query_list">
+                                <td>{{wi.query | limitTo:15}}</td>
+                                <td>{{wi.create_time}}</td>
+                                <td><span class="glyphicon glyphicon-trash" ng-click="del_query(wi.id, 'wait', query_wait_intervene.this_page, '0', '')"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="nlu-label-page">
+                        <div class="btn-group">
+                            <button class="btn btn-default  btn-xs" ng-click="get_query_list('wait', 1, '2', search_query_intervention);"><i class="glyphicon glyphicon-step-backward"></i></button>
+                            <button class="btn btn-default  btn-xs" ng-click="get_query_list('wait', query_wait_intervene.pre_page, '2', search_query_intervention);"><i class="glyphicon glyphicon-chevron-left"></i> </button>
+                            <button class="btn btn-primary btn-xs">{{query_wait_intervene.this_page}}</button>
+                            <button class="btn btn-default btn-xs" ng-click="get_query_list('wait', query_wait_intervene.next_page, '2', search_query_intervention);"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                            <button class="btn btn-default btn-xs" ng-click="get_query_list('wait', query_wait_intervene.pageall, '2', search_query_intervention);"><i class="glyphicon glyphicon-step-forward"></i></button>
+                            <button class="btn btn-default btn-xs disabled">({{query_wait_intervene.pageall}}页)</button>
+
+                            <div class="input-group input-group-xs">
+                                <input type="text" class="form-control" id="query_wait_intervene_goto_page" value="{{goto_some_page_intervention}}" placeholder="跳转页" ng-model="goto_some_page_intervention" style="height: 22px;font-size: 12px;">
+                                <span class="input-group-btn">
+                                        <button class="btn btn-default  btn-xs" type="button" ng-click="get_query_list('wait', goto_some_page_intervention, '2', search_query_intervention);" ><span class="glyphicon glyphicon-arrow-right" ></span></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="nlu-label-hr-table">
+                </div>
+                <!-- /nlu-label-table -->
+            </div>
+            <!-- /row -->
+            <div class="row">
+                <div class="form-group">
+                    <label class="nlu-wait-label col-sm-5">已干预<span class="badge badge-warning">{{query_intervened.total}}</span></label>
+                    <div class="input-group input-group-sm nlu-search">
+                        <input type="text" class="form-control" placeholder="请输入关键字搜索" id="search_intervened" ng-model="search_query_intervened" value="">
+                        <span class="input-group-btn">
+                                   <button class="btn btn-default btn-xs" type="button" ng-click="get_query_list('done', 1, '0', search_query_intervened)"><span class="glyphicon glyphicon-search" ></span></button>
+                        </span>
+                    </div>
+                    <!-- /input-group -->
+                </div>
+                <!-- /form-group -->
+            </div>
+            <!-- /row -->
+            <!-- <hr class="nlu-label-hr-light"> -->
+            <div class="row">
+                <div class="nlu-label-table">
+                    <table class="table table-condensed col-md-8">
+                        <tbody>
+                            <tr ng-repeat="wi in query_intervened.query_list">
+                                <td>{{wi.query | limitTo:10}}</td>
+                                <td>{{wi.update_time}}</td>
+                                <td><span class="glyphicon glyphicon-trash" ng-click="del_query(wi.id, 'done', query_intervened.this_page, '0')"></span></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="nlu-label-page">
+                        <div class="btn-group">
+                            <button class="btn btn-default btn-xs" ng-click="get_query_list('done', 1, '2', '');"><i class="glyphicon glyphicon-step-backward"></i></button>
+                            <button class="btn btn-default btn-xs" ng-click="get_query_list('done', query_intervened.pre_page, '0', search_query_intervened);"><i class="glyphicon glyphicon-chevron-left"></i></button>
+                            <button class="btn btn-primary btn-xs">{{query_intervened.this_page}}</button>
+                            <button class="btn btn-default btn-xs" ng-click="get_query_list('done', query_intervened.next_page, '0', search_query_intervened);"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                            <button class="btn btn-default btn-xs" ng-click="get_query_list('done', query_intervened.pageall, '0', search_query_intervened);"><i class="glyphicon glyphicon-step-forward"></i></button>
+                            <button class="btn btn-default btn-xs disabled">({{query_intervened.pageall}}页)</button>
+
+                            <div class="input-group input-group-md">
+                                <input type="text" class="form-control" id="query_intervened_goto_page" value="{{goto_some_page_intervened}}" placeholder="跳转页" ng-model="goto_some_page_intervened" style="height: 22px;font-size: 12px;">
+                                <span class="input-group-btn input-troup-btn-xs">
+                                        <button class="btn btn-default  btn-xs" type="button" ng-click="get_query_list('done', goto_some_page_intervened, '0', search_query_intervened);" ><span class="glyphicon glyphicon-arrow-right" ></span></button>
+                                </span>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <!-- /nlu-label-table -->
+            </div>
+            <!-- /row -->
+            <br>
+            <hr class="nlu-label-hr-light">
+            <br>
+            <br>
+        </div>
+        <!-- /nlu-right -->
+    </div>
+    <!-- end middle -->
+</div>
+<script>
+$('#editable-select-add-intent').editableSelect();
+function trim(str){ //删除全部空格
+    var result;
+    var is_global = "g";
+    result = str.replace(/(^\s+)|(\s+$)/g,"");
+    if(is_global.toLowerCase()=="g")
+    {
+        result = result.replace(/\s/g,"");
+     }
+    return result;
+    //return str.replace(/(^\s*)|(\s*$)/g, "");
+}
+
+function copy_tr(){
+    //var h = $("#copyTr").html();
+    //h = h.replace("query-slot-tr copyTr", "query-slot-tr");
+    var intent = $("#editable-select-add-intent").val();
+    var appid = $("#app_id").val();
+    var query = $("#wait_intervene");
+    var ori_query = trim($("#wait_intervene").val());
+
+    // if( intent == "" || intent == "null" || typeof intent == "undefined")
+    // {
+    //     alert("请先选择意图");
+    //     return false;
+    // }
+    if (ori_query == "")
+    {
+        alert("请先输入query");
+        return false;
+    }
+
+    var ctr = "<tr>" + $("#copyTr").html() + "</tr>";
+    //alert(ctr);
+    //var slot_tbody = $("#slot_tbody").html();
+    $("#slot_tbody").append(ctr);
+    select_obj = $("#slot_table").find("tr:last").find("select");
+
+
+    slot_recommend_word(ori_query, appid, intent, "", select_obj)
+
+    // select_obj.each(function(index, element)
+    // {
+    //     select_obj.append("<option value='text'>test</option>")
+    //     select_obj.editableSelect();
+    // });
+}
+
+function clear_tr(){
+    var vtr = $("#slot_tbody").children("tr").find("input");
+    var i = 1;
+    vtr.each(function(index, element)
+     {
+        if( index > 1 && element.name == "word")
+        {
+            $("#slot_tbody").find("tr:last").remove();
+        }
+     })
+}
+
+$("#intertBtn").click(function() {
+    copy_tr();
+});
+
+function qu_slot_delete(obj) {
+    jQuery(obj).parent().parent().remove()
+}
+function wordseg(){
+    var appid = $("#app_id").val();
+    var query = $("#wait_intervene");
+    var ori_query = trim($("#wait_intervene").val());
+    var url= "/wordseg";
+    var wordseg_res = ori_query;
+    $.ajax({
+            url: url,
+            type: 'post',//提交的方式
+            dataType:'json',
+            data: {"query": ori_query,},
+            success: function(msg) {
+                //这是成功返回的数据，写自己的逻辑
+                if(msg["errno"]==0)
+                {
+                    query.val(msg["wordseg"]);
+                    wordseg_res = msg["wordseg"];
+                    intent_recomend();
+                    set_slots(wordseg_res);
+                }
+                else if(msg["errno"]==4)
+                {
+                    alert(msg["msg"]);
+                }
+                else
+                {
+                    alert("error");
+                }
+            },
+            error: function(msg)
+            {
+                alert("fail");
+            }
+        });
+
+}
+
+function intent_recomend()
+{
+    var appid = $("#app_id").val();
+    var ori_query = trim($("#wait_intervene").val());
+    url = "/intentrecommend";
+    $.ajax({
+            url: url,
+            type: 'post',//提交的方式
+            dataType:'json',
+            data: {"query": ori_query, "appid": appid},
+            success: function(msg) {
+                //这是成功返回的数据，写自己的逻辑
+                if(msg.length > 0)
+                {
+                    var select_parent = $("#editable-select-add-intent").parent();
+                    var select_intent_old = $("#editable-select-add-intent").parent().children().remove();
+
+                    var select_html = '<select id="editable-select-add-intent" class="form-control" placeholder="选择或者输入一个意图" onblur="bind_intent_func_slot('+"'"+'editable-select-add-intent'+"','"+'now_func_slot'+"'"+')"></select>';
+                    select_parent.html(select_html);
+                    var select_intent = $("#editable-select-add-intent");
+                    var option_first="";
+                    var option="";
+                    var option_first_tag = false;
+                    for(var i = 0; i< msg.length; i++)
+                    {
+                        if(msg[i].status == "1")
+                        {
+                            option_first = "<option value='"+msg[i].intent_name + ":" + msg[i].func_slot+"' style='color:red'><span style='color:red'>"+msg[i].intent_name +"</span></option>";
+                            option_first_tag = true;
+                        }
+                        else if(msg[i].status == "2")
+                        {
+                            option = "<option value='"+msg[i].intent_name + ":'>"+msg[i].intent_name +"</option>";
+                        }
+                        else if(msg[i].status == "0")
+                        {
+                            option = "<option value='"+msg[i].intent_name + ":'"+ msg[i].func_slot+">"+msg[i].intent_name +"</option>";
+                        }
+                        if (option != "")
+                        {
+                            select_intent.append(option);
+                        }
+                        option = "";
+                    }
+                    if(option_first_tag)
+                    {
+                        select_intent.prepend(option_first);
+                    }
+                    $("#editable-select-add-intent").editableSelect();
+
+                }
+
+            },
+            error: function(msg)
+            {
+                alert("fail");
+            }
+        });
+}
+
+function set_slots(wordseg_res){
+    words = wordseg_res.split("  ");
+    for(var i = 0;i < words.length; i++)
+    {
+        //words[i]
+        copy_tr();
+    }
+    var obj=$("#slot_tbody").children("tr").find("input");
+    var i = 0;
+    obj.each(function(index, element){
+        if( element.name == "word" && index > 2)
+        {
+            element.value = words[i];
+            i += 1;
+        }
+    });
+
+}
+
+function slot_recommend()
+{
+    var appid = $("#app_id").val();
+    var ori_query = trim($("#wait_intervene").val());
+    var intent = $("#editable-select-add-intent").next().children("li.ng-binding.ng-scope.es-visible").attr("value");
+    if (typeof intent == "undefined")
+    {
+        var intent_obj = $("#editable-select-add-intent").next().children();
+        intent_obj.each(function(index, element)
+        {
+            if (element.className.indexOf("es-visible") >=0 )
+            {
+                intent = jQuery(element).attr("value");
+            }
+        });
+
+    }
+    var intent_name = trim(intent.split(":")[0]);
+
+    var obj_word=$("#slot_tbody").children("tr").find("input");
+    var j = 0;
+    var words = [];
+    var obj=$("#slot_tbody").children("tr").find("input");
+    var i = 1;
+    var option_first_tag = false;
+    var option_first = "";
+    j = 0;
+    //var words = msg["wordseg"].split("  ");
+    //alert(words.length);
+    obj.each(function(index, element){
+        if( element.name == "word" && index > 2)
+        {
+            //alert(intent_name + " " + ori_query + " " + element.value);
+            var obj_option = jQuery($("#slot_tbody").children("tr").find("select")[i]);
+            slot_recommend_word(ori_query, appid, intent_name, element.value, obj_option);
+            j += 1;
+            //alert(element.value + i);
+        }
+    });
+}
+
+function slot_recommend_word(ori_query, appid, intent_name, cur_term, obj_option)
+{
+
+    url = "/slotrecommend";
+    $.ajax({
+            url: url,
+            type: 'post',//提交的方式
+            dataType:'json',
+            async: false,
+            data: {"query": ori_query, "appid": appid, "intent_name":intent_name, "cur_term":cur_term},
+            success: function(msg) {
+                //这是成功返回的数据，写自己的逻辑
+
+                if(msg.length > 0)
+                {
+                    var option_first_tag = false;
+                    var option_first = "";
+                    for(var j =0 ; j < msg.length; j++)
+                    {
+                        if (msg[j].status == '2')
+                        {
+                            option_first = msg[j].slot_name;
+                            option_first_tag = true;
+                        }
+                        if (msg[j].status == '0')
+                        {
+                            option = msg[j].slot_name;
+                        }
+                        obj_option.append("<option value='"+option+"'>"+option+"</option>");
+                    }
+                    if(option_first_tag)
+                    {
+                        obj_option.prepend("<option value='"+option_first+"' style='color:red'><span style='style:red'>"+option_first+"</span></option>");
+                    }
+                    obj_option.editableSelect();
+
+                }
+            },
+            error: function(msg)
+            {
+                alert("fail");
+            }
+        });
+
+
+}
+
+function do_wordseg(){
+    clear_tr();
+    wordseg();
+
+}
+
+function bind_intent_func_slot(intent_id, func_slot_id)
+{
+    func_map = {
+        "info-ynq":"用户主动单轮-信息查询类-是非问(info-ynq)",
+        "info-slctq":"用户主动单轮-信息查询类-比较/选项问(info-slctq)",
+        "info":"用户主动单轮-信息查询类-其他查询问(info)",
+        "exe":"用户主动单轮-请求行为类(exe)",
+        "update":"用户主动多轮-信息更新类(update)",
+        "ans-info":"BOT主动多轮-用户答复类-提供信息(ans-info)",
+        "ans-yn":"BOT主动多轮-用户答复类-是非答复(ans-yn)",
+        "null":"请选择",
+    }
+    var val = $("#editable-select-add-intent").next().children("li.ng-binding.ng-scope.es-visible").attr("value");
+    if (typeof val == "undefined")
+    {
+        var val_obj = $("#editable-select-add-intent").next().children();
+        val_obj.each(function(index, element)
+        {
+            if (element.className.indexOf("es-visible") >=0 )
+            {
+                val = jQuery(element).attr("value");
+            }
+        });
+    }
+    var name_func = val.split(":");
+    //alert($("#"+intent_id).val() + " " + name_func[0] + " " + name_func[1]);
+    if(name_func[1] == "")name_func[1]="null";
+    $("#"+func_slot_id).val(func_map[name_func[1]]);
+
+    $("#now_func_slot option").each(function (){
+        //alert($(this).val() + "  " + name_func[1]);
+        $(this).removeAttr("selected");
+        if($(this).val()==name_func[1])
+        {
+            $(this).prop("selected", true);
+            slot_recommend();
+        }
+     });
+}
+
+function merge_slot_word()
+{
+    var obj_word=$("#slot_tbody").children("tr").find("input");
+    var word = "";
+    var merge_time = 0
+    obj_word.each(function(index, element)
+    {
+        if(element.name == "slotMerge" && index > 1 && element.checked == true)
+        {
+            //
+            word += jQuery(element).next().val();
+            merge_time += 1;
+            if (merge_time > 1)
+            {
+                jQuery(element).closest("tr").remove();
+                //alert("remove");
+            }
+            element.checked = false;
+        }
+
+    });
+    var merge_tag = false;
+    obj_word.each(function(index, element){
+        if (index > 1 && element.name == "word" && !merge_tag)
+        {
+            merge_tag = true;
+            element.value = word;
+        }
+    });
+    slot_recommend();
+
+}
+
+function gbkBytes(str) {
+    var realLen = 0;
+    var len = str.length;
+    for (var i = 0; i < len; i ++) {
+        var charCode = str.charCodeAt(i);
+        if (charCode >= 0 && charCode <= 128) {
+            realLen += 1;
+        }
+        else {
+            realLen += 2;
+        }
+    }
+    return realLen;
+}
+
+function query_all()
+{
+    document.getElementById("query_form").reset();
+    clear_tr();
+}
+
+</script>

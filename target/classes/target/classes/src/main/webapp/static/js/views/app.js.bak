@@ -1,0 +1,84 @@
+require.config({
+    paths: {
+        // angular
+        "angular": "/static/js/angular.min.1.4.6",
+
+        // angular-ui
+        "angular-ui-router": "/static/js/angular-ui-router/angular-ui-router.min",
+
+        // angularAMD
+        "angularAMD": "/static/js/angularAMD/angularAMD.min",
+        "ngload": "/static/js/angularAMD/ngload.min"
+    },
+    shim: {
+        // angular
+        "angular": { exports: "angular" },
+
+        // angular-ui
+        "angular-ui-router": ["angular"],
+
+        // angularAMD
+        "angularAMD": ["angular"],
+        "ngload": ["angularAMD"]
+    }
+});
+
+// bootstrap
+define(["angular", "angularAMD", "angular-ui-router"], function(angular, angularAMD) {
+
+    // routes
+    var registerRoutes = function($stateProvider, $urlRouterProvider) {
+
+        // default
+        //$urlRouterProvider.otherwise("/mana");
+
+        // route
+        //      $stateProvider
+
+        //          // home
+        //          // .state("home", angularAMD.route({
+        //          //     url: "/home",
+        //          //     templateUrl: "home.html",
+        //          //     controllerUrl: "home.js"
+        //          // }))
+
+        // // home
+        //          .state("about", angularAMD.route({
+        //              url: "/about",
+        //              templateUrl: "about.html",
+        //              controllerUrl: "about.js"
+        //          }))
+
+        //          .state("mana.intent", angularAMD.route({
+        //              url: "/mana/intent",
+        //              templateUrl: "<h1>{{ title }}</h1>",
+        //              controllerUrl: "/static/js/views/mana.js"
+        //          }))
+        //      ;       
+        $stateProvider
+            .state('mana', {
+                url: '/mana',
+                views: {
+                    // '': {
+                    //     templateUrl: 'tpls/index.html'
+                    // },
+                    'mana@intent': {
+                        templateUrl: '<h1>{{ title }}</h1>'
+                        controllerUrl: "/static/js/views/mana.js"
+                    },
+                    'main2@index': {
+                        templateUrl: 'tpls/form2.html'
+                    }
+                }
+            })
+    };
+
+    // module
+    var app = angular.module("app", ["ui.router"]);
+
+    // config
+    app.config(["$stateProvider", "$urlRouterProvider", registerRoutes]);
+
+    // bootstrap
+    return angularAMD.bootstrap(app);
+});

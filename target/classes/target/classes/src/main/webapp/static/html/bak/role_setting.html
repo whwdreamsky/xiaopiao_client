@@ -1,0 +1,138 @@
+    <div role="tabpanel" class="tab-pane fade" ng-class="{true: 'tab-pane fade active in', false: 'tab-pane fade'}[setting.role_setting_isActive]" id="user_slots_div" aria-labelledby="app-auth-role-tab"  class="col-md-10">
+
+    <br>
+
+    <div class="row" >
+        <div class="col-md-offset-1 col-md-10 nlu-appmodel-table">
+            <table class="table table-condensed table-bordered table-hover">
+                <thead>
+                    <th>角色名</th>
+                    <th>action</th>
+                    <th>操作</th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat ="role_item in response_data['data']">
+                    <td>
+                    {{role_item.role}}
+                    </td>
+                    <td>
+                    {{role_item.action}}
+                    </td>
+                          <td  class = "col-md-3">
+                    <div class="slot_up_down" style="margin-left: 31%;">
+                    <span class="glyphicon glyphicon-edit" title="编辑" data-toggle="modal" data-target="#edit_role_{{role_item.role_id}}"></span>
+                                <!-- <span class="glyphicon glyphicon-ok-circle" title="验证"></span> -->
+                     <span class="glyphicon glyphicon-trash" title="删除" ng-click="
+                     delete_role(role_item)"></span>
+
+
+                            <div class="modal fade" id="edit_role_{{role_item.role_id}}" tabindex="-1" role="dialog" aria-labelledby="myModalEdit" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                            <h4 class="modal-title" id="myModalEdit">修改权限</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <br>
+                                            <form class="form-horizontal" role="form" id="edit_role_form_{{role_item.role_id}}">
+                                            <div class="form-group">
+                                        <label for="query" class="col-sm-3 control-label">角色名</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" id = "input_edit_role_{{role_item.role_id}}"class="form-control"  name="intent_name" placeholder="{{role_item.role}}"  >
+                                             </div>
+                                            </div>
+                                               <div class="form-group">
+                                        <label for="query" class="col-sm-3 control-label">description</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" id = "input_edit_description_{{role_item.role_id}}" class="form-control"  name="intent_name" placeholder="{{role_item.description}}"  >
+                                             </div>
+                                            </div>
+
+
+                                                         <div class="checkbox" >
+                                                                    <label  ng-repeat =
+                                                                    " action_item in action_list">
+                                                                        <input type="checkbox"
+                                                                        id = "check_box_{{role_item.role_id}}_{{action_item.id}}"
+                                                                        ng-model="role_action"
+                                                                        > {{action_item.action}}
+                                                                    </label>
+
+                                                      </div>
+                                                      </form>
+                                                           <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary" ng-click="edit_role_setting(role_item)">修改</button>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal" id="edit_cancel_{{role_item.role_id}}">取消</button>
+                                            </div>
+
+
+
+
+                                        </div>
+                                    </div>
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                </td>
+
+
+                    </tr>
+
+
+                </tbody>
+            </table>
+                  <a href="" class="btn btn-primary add-intent" data-toggle="modal" data-target="#myModalAddSlot">新增角色</a>
+                <!-- copy Modal -->
+                <div class="modal fade" id="myModalAddSlot" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                <h4 class="modal-title" id="myModalLabel">新增角色</h4>
+                            </div>
+                            <div class="modal-body">
+                                <br>
+                                <form class="form-horizontal" role="form" id="add_role_form">
+                                    <div class="form-group">
+                                        <label for="query" class="col-sm-3 control-label">角色名</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="intput_add_role_name" placeholder="">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="query" class="col-sm-3 control-label">描述</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="intput_add_role_description" placeholder="">
+                                        </div>
+                                    </div>
+                                      <div class="checkbox" >
+                                                                    <label  ng-repeat =
+                                                                    " action_item in action_list">
+                                                                        <input type="checkbox"
+                                                                        id = "check_box_new_{{action_item.id}}"
+                                                                        ng-model="role_action"
+                                                                        > {{action_item.action}}
+                                                                    </label>
+
+                                                      </div>
+
+                                </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" ng-click="add_role()">新增</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="add_role_cancel">取消</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                </div>
+</div>

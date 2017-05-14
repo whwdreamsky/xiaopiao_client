@@ -1,0 +1,584 @@
+<div role="tabpanel" ng-class="{true: 'tab-pane fade active in', false: 'tab-pane fade'}[tab.pattern_inner_isActive]" id="intervention-pattern" aria-labelledby="intervention-pattern-tab">
+    <br>
+    <!--<div class="row" style="float: right;margin-right: 20%;" id="pattern_intervention_page_right">
+        <div class="col-sm-offset-2 col-sm-3">
+            <a class="btn btn-info" href="/all/index?appid={{appid}}">返回应用全景</a>
+        </div>
+    </div>-->
+    <div class="row col-md-offset-1" id="pattern_intervention_page_top">
+        <form class="form-horizontal col-md-10" style="z-index:3000" >
+
+            <button id="query_select_package" data-toggle="modal" href="#myModalChoosePackage" class="btn btn-primary" style="margin-right: 5%;">{{now_package_name}}</button>
+            <a class="btn btn-default" data-toggle="modal" data-target="#import_wait_intervention_pattern" >导入</a>
+            <!-- Modal -->
+            <div class="modal fade in" id="myModalChoosePackage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">请选择要展现的包</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul style="margin-left: 4%;overflow:auto;height:500px;" id="ztree" class="ztree">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" data-dismiss="modal" id="pattern_tree_check_btn">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end modal -->
+
+
+            <!-- copy Modal -->
+            <div class="modal fade" id="import_wait_intervention_pattern" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">导入待标注集</h4>
+                        </div>
+                        <div class="modal-body">
+                            <br>
+                            <form class="form-horizontal" role="form" id="form_import_wait_intervention_pattern">
+                                <div class="form-group">
+                                    <label for="query" class="col-sm-2 control-label">样本文件</label>
+                                    <div class="col-sm-10">
+                                        <a href="unpatternsample">点击下载</a>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="query" class="col-sm-2 control-label">上传文件</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" class="form-control" name="file_name_test" id="intput_import_wait_intervention_pattern">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" ng-click="pattern_upload_file('import_wait_intervention_pattern')">导入</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal" id="cancel_import_wait_intervention_pattern">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end modal -->
+        </form>
+        <form class="form-horizontal col-md-10 nlu-margin-top27" role="form" id="pattern_form">
+            <button disabled="" id="zhedie_button" style="float: none;" class="btn btn-default btn-xs " data-toggle="collapse" data-target="#demo">
+                高级选项（待开放）
+            </button>
+            <a href="http://wiki.baidu.com/pages/viewpage.action?pageId=249894168" target="_blank">如何配置QUERY理解模板?<a>
+
+
+            <br>
+            <br>
+            <div id="demo" class="collapse">
+
+            <div class="form-group">
+                <label for="last_intent" class="col-sm-2 control-label">上轮意图</label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="pattern_pre_intent">
+                        <option value="None">None</option>
+                        <option value="{{il.intent_name}}" ng-repeat="il in pattern.intent_list">
+                            {{il.intent_name}}<span ng-show="il.description.length>0">({{il.description}})</span>
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <!--<div class="form-group">
+                <label for="last_need" class="col-sm-2 control-label">上轮需求</label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="pattern_pre_func_slot">
+                        <option value="None">None</option>
+                        <option value="info-ynq">用户主动单轮-信息查询类-是非问(info-ynq)</option>
+                        <option value="info-slctq">用户主动单轮-信息查询类-比较/选项问(info-slctq)</option>
+                        <option value="info">用户主动单轮-信息查询类-其他查询问(info)</option>
+                        <option value="exe">用户主动单轮-请求行为类(exe)</option>
+                        <option value="update">用户主动多轮-信息更新类(update)</option>
+                        <option value="ans-info">BOT主动多轮-用户答复类-提供信息(ans-info)</option>
+                        <option value="ans-yn">BOT主动多轮-用户答复类-是非答复(ans-yn)</option>
+                    </select>
+                </div>
+            </div>-->
+            <div class="form-group">
+                <label for="last_action" class="col-sm-2 control-label">上轮动作</label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="pattern_pre_action">
+                        <option value="None">None</option>
+                        <option value="{{an.action_name}}" ng-repeat="an in pattern.action_list">{{an.action_name}}</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            </div>
+            <div class="form-group">
+                <label for="query" class="col-sm-2 control-label">编辑模板</label>
+                <input type="hidden" id="pattern_id" value="">
+                <input type="hidden" id="next_id" value="">
+                <div class="col-sm-8">
+                  <!--   <input type="text" class="form-control" id="label_pattern" placeholder=""> -->
+                    <textarea  cols="50" rows="4"  class="form-control"  id="label_pattern" tabindex="1"></textarea>
+                </div>
+                <div class="col-sm-2">
+                    <button type="reset" class="btn btn-default btn-block" id="pattern_clear_all" onclick="pattern_all();" tabindex="500">清空</button>
+                </div>
+            </div>
+            <div class="form-group" ng-show="slot_list.length !=0">
+                <label for="query" class="col-sm-2 control-label"><span >插</span><span style="color: transparent;" >对齐</span>入<br>槽位词典</label>
+                <div class="col-sm-8">
+                <button  ng-repeat="slot in slot_list" ng-click="add_slot(slot.slot_name)" style="margin-top: 2%; margin-right: 3px" class="btn btn-xs btn-default " class="btn-xs">{{slot.slot_name}}</button>
+
+
+                </div>
+            </div>
+            <div class="form-group" ng-show="keywordlist.length!=0">
+                <label for="query" class="col-sm-2 control-label"><span>插</span><span style="color: transparent;" >对齐</span>入<br>keyword</label>
+                <div class="col-sm-8">
+                <button  ng-repeat="keyword in keywordlist" ng-click="add_slot(keyword.name)" style="margin-top: 2%; margin-right: 3px" class="btn btn-xs btn-default " class="btn-xs">{{keyword.name}}</button>
+
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="intent" class="col-sm-2 control-label">选择意图</label>
+                <div class="col-sm-8">
+                    <select id="editable-select-add-pattern-no-func-slot" class="form-control" placeholder="选择或者输入一个意图" tabindex="2">
+                        <option value="">请选择</option>
+                        <option value="{{il.intent_name}}" ng-repeat="il in pattern.intent_list">{{il.intent_name}}<span ng-if="!il.description.length>0">({{il.description}})</span></option>
+                    </select>
+                </div>
+                <div class="col-sm-2" style="display:none">
+                    <a class="btn btn-nlu btn-block" id="btn_pattern_intervention_page_save" ng-click="save_pattern();" >保存</a>
+    </div>
+</div>
+<!--<div class="form-group">
+                <label for="intent" class="col-sm-2 control-label">当前需求</label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="pattern_now_func_slot" required="true" value="info">
+                        <option value="info-ynq">用户主动单轮-信息查询类-是非问(info-ynq)</option>
+                        <option value="info-slctq">用户主动单轮-信息查询类-比较/选项问(info-slctq)</option>
+                        <option value="info">用户主动单轮-信息查询类-其他查询问(info)</option>
+                        <option value="exe">用户主动单轮-请求行为类(exe)</option>
+                        <option value="update">用户主动多轮-信息更新类(update)</option>
+                        <option value="ans-info">BOT主动多轮-用户答复类-提供信息(ans-info)</option>
+                        <option value="ans-yn">BOT主动多轮-用户答复类-是非答复(ans-yn)</option>
+                        <option value="null">请选择</option>
+                    </select>
+                </div>
+            </div>-->
+<div class="form-group" style="">
+    <div class="col-sm-offset-2 col-sm-3">
+        <a class="btn btn-info" href="/all/index?appid={{appid}}">返回应用全景</a>
+    </div>
+    <div class="col-sm-2">
+        <a type="#" class="btn btn-nlu" ng-click="save_pattern();" id="pattern_save_btn_id" tabIndex="3">保存(Enter)</a>
+    </div>
+    <!--<div class="col-sm-2">
+                    <button class="btn btn-nlu-blue btn-block" ng-click="intervene_effect();">生效</button>
+                </div>-->
+</div>
+</form>
+<div class="col-md-4 nlu-margin-topm47" style="display:none">
+    <div class="nlu-right" style="width: 105.7%;">
+        <div class="row nlu-label" style="padding-top: 7px;  padding-left: 5%;">
+
+            <!--<a class="btn btn-default btn-sm" data-toggle="modal" data-target="#import_already_intervention_pattern">导入已标注集</a> -->
+
+            <div class="modal fade" id="import_already_intervention_pattern" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">导入已经标注集<a href = "querysample">(样本文件)</a></h4>
+                        </div>
+                        <div class="modal-body">
+                            <br>
+                            <form class="form-horizontal" role="form" id="form_import_already_intervention_pattern">
+                                <div>
+                                    <input type="file" class="form-control" id="intput_import_already_intervention_pattern" name="file_name_test">
+                                </div>
+                            </form>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" ng-click="pattern_upload_file('import_already_intervention_pattern')">导入</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal" id="cancel_import_already_intervention_pattern">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  <a class="btn btn-default btn-sm" href="/intervene/patternexport?appid={{appid}}&status=0">导出已标注集</a> -->
+            <!--   <a class="glyphicon glyphicon-export nlu-label-export-icon" href="/intervene/patternexport?appid={{appid}}&status=0"></a> -->
+            <div class="query_select_package_div" style="float: left;margin-bottom:4px;margin-left: 3%;display:none">
+
+                <!--<select id="query_select_package" name="type" class="form-control" ng-change="choose_pacakge('query')" ng-model="cpk">
+                        <option value="" ng-if="!package_list.query_package.length">请选择</option>
+                        <option value="{{qp.id}}" ng-repeat=" qp in package_list.query_package">{{qp.name}}</option>
+                    </select>-->
+            </div>
+            <!--<a class="btn btn-default" data-toggle="modal" data-target="#import_query_div" style="float: right;margin-right: 15%;">导入</a>-->
+            <!-- import Modal -->
+            <div class="modal fade" id="import_query_div" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">导入<!--<a href = "/intervene/querysample">(实例样本)</a>--><a href = "/intervene/patternsample">(模板样本)</a></h4>
+                        </div>
+                        <div class="modal-body">
+                            <br>
+                            <form class="form-horizontal" role="form" id="form_import">
+                                <!--          <div class="form-group">
+                                         <label for="query"  class="col-sm-2 control-label">样本文件</label>
+                                        <div class="col-sm-10">
+                                           <a href = "/intervene/patternsample">点击下载</a>
+                                        </div>
+                                    </div> -->
+                                <div class="form-group">
+                                    <label for="query" class="col-sm-2 control-label">创建包名称</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" ng-model="query_package_name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="query" class="col-sm-2 control-label">类型</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="import_type_select">
+                                            <!--<option value="query" selected="true">训练集</option>-->
+                                            <option value="pattern" selected="true">模板</option>
+                                            <!--<option value="eval_query">评估集</option>-->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-if="model_import_type_select=='query'">
+                                    <label for="query" class="col-sm-2 control-label">数据导入</label>
+                                    <div class="col-sm-10">
+                                        <input type="radio" ng-model="import.import_type" name="radio_import_type" value="all">全部作为训练集
+                                        <input type="radio" ng-model="import.import_type" name="radio_import_type" value="part">部分作为评估数据集
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-if="model_import_type_select == 'query' && import.import_type=='part'">
+                                    <label for="query" class="col-sm-2 control-label">作为评估的数据量</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="input_query_num" ng-model="import.num" placeholder="只能输入数字" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="query" class="col-sm-2 control-label">文件位置</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" class="form-control" name="file_name_test" id="intput_import_query">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" ng-click="upload_file('0', model_import_type_select,import.import_type, import.num, query_package_name)">导入</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal" id="cancel_import">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end modal -->
+            <hr class="nlu-label-hr" style="margin-left:1%">
+            <div class="row">
+                <div class="form-group">
+                    <!--<label class="nlu-wait-label col-sm-5">待标注<span class="badge badge-warning">{{pattern_wait_intervene.total}}</span></label>-->
+                    <div class="input-group input-group-sm nlu-search col-md-8" style="width: 52%;margin-left: 4%;">
+                        <input type="text" class="form-control" placeholder="请输入关键字搜索" id="pattern_search_intervention" ng-model="search_pattern_intervention" value="">
+                        <span class="input-group-btn">
+                                                     <button class="btn btn-default btn-sm" type="button" ng-click="get_pattern_list('wait', 1, now_status, search_pattern_intervention)"><span class="glyphicon glyphicon-search" ></span></button>
+                        </span>
+                    </div>
+                    <!-- /input-group -->
+                    <label class="col-sm-4" style="margin-top: -24px;float: right;">{{now_package.labeled_count}} / {{now_package.current_volume}}</label>
+                </div>
+                <!-- /form-group -->
+            </div>
+            <!-- /row -->
+            <!-- <hr class="nlu-label-hr-light"> -->
+            <div class="row" >
+                <div class="nlu-label-table">
+                    <table class="table table-condensed col-md-8">
+                        <thead style="display:none">
+                            <th class="sorting" ng-click="show_order('order_pattern', 'pattern', search_pattern_intervention)" id="order_pattern">模板</th>
+                            <th class="sorting" ng-click="show_order('order_intent', 'intent', search_pattern_intervention)" id="order_intent">意图</th>
+                            <th class="sorting" ng-click="show_order('order_status', 'status', search_pattern_intervention)" id="order_status">状态</th>
+                            <th></th>
+                        </thead>
+                        <tbody style="display:none">
+                            <tr ng-repeat="wi in pattern_wait_intervene.pattern_list">
+                                <td style="text-align:left"><a href="" ng-click="pattern_edit_func(wi.id, '2')" title="{{wi.pattern}}">{{wi.pattern | limitTo:10}}<span ng-if="wi.pattern.length>10">...</span></a></td>
+                                <td>{{wi.intent}}</td>
+                                <td ng-if="wi.status==0 ">已标注</td>
+                                <td ng-if="wi.status==2 ">未标注</td>
+                                <td><span class="glyphicon glyphicon-trash" ng-click="del_pattern(pattern_wait_intervene.package_id, wi.id, 'wait', pattern_wait_intervene.this_page, '2')"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="nlu-label-page">
+                        <div class="btn-group" style="display:none">
+                            <button class="btn btn-default  btn-xs" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, 1, now_status, search_pattern_intervention);"><i class="glyphicon glyphicon-step-backward"></i></button>
+                            <button class="btn btn-default  btn-xs" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, pattern_wait_intervene.pre_page, now_status, search_pattern_intervention);"><i class="glyphicon glyphicon-chevron-left"></i> </button>
+                            <button class="btn btn-primary btn-xs">{{pattern_wait_intervene.this_page}}</button>
+                            <button class="btn btn-default btn-xs" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, pattern_wait_intervene.next_page, now_status, search_pattern_intervention);"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                            <button class="btn btn-default btn-xs" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, pattern_wait_intervene.pageall, now_status, search_pattern_intervention);"><i class="glyphicon glyphicon-step-forward"></i></button>
+                            <button class="btn btn-default btn-xs disabled">({{pattern_wait_intervene.pageall}}页)</button>
+                            <div class="input-group input-group-xs">
+                                <input type="text" class="form-control" id="pattern_wait_intervene_goto_page" value="{{goto_some_page_intervention}}" placeholder="跳转页" ng-model="goto_some_page_intervention" style="height: 22px;font-size: 12px;">
+                                <span class="input-group-btn">
+                                        <button class="btn btn-default  btn-xs" type="button" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, goto_some_page_intervention, now_status, search_pattern_intervention);" ><span class="glyphicon glyphicon-arrow-right" ></span></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="nlu-label-hr-table" style="display:none">
+                </div>
+                <!-- /nlu-label-table -->
+            </div>
+            <!-- /row -->
+            <div class="row" style="display:none">
+                <div class="form-group">
+                    <label class="nlu-wait-label col-sm-5">已标注<span class="badge badge-warning">{{pattern_intervened.total}}</span></label>
+                    <div class="input-group input-group-sm nlu-search">
+                        <input type="text" class="form-control" placeholder="请输入关键字搜索" id="search_intervened" ng-model="search_pattern_intervened" value="">
+                        <span class="input-group-btn">
+                                                           <button class="btn btn-default btn-xs" type="button" ng-click="get_pattern_list('done', 1, '0', search_pattern_intervened)"><span class="glyphicon glyphicon-search" ></span></button>
+                        </span>
+                    </div>
+                    <!-- /input-group -->
+                </div>
+                <!-- /form-group -->
+            </div>
+            <!-- /row -->
+            <!-- <hr class="nlu-label-hr-light"> -->
+            <div class="row" style="display:none">
+                <div class="nlu-label-table">
+                    <table class="table table-condensed col-md-8">
+                        <tbody>
+                            <tr ng-repeat="wi in pattern_intervened.pattern_list">
+                                <td style="text-align:left"><a href="" ng-click="pattern_edit_func(wi.id, '0')" title="{{wi.pattern}}">{{wi.pattern | limitTo:10}}<span ng-if="wi.pattern.length>10">...</span></a></td>
+                                <td>{{wi.update_time}}</td>
+                                <td><span class="glyphicon glyphicon-trash" ng-click="del_pattern(wi.id, 'done', pattern_intervened.this_page, '0')"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="nlu-label-page">
+                        <div class="btn-group">
+                            <button class="btn btn-default btn-xs" ng-click="get_pattern_list('done', 1, '2', search_pattern_intervened);"><i class="glyphicon glyphicon-step-backward"></i></button>
+                            <button class="btn btn-default btn-xs" ng-click="get_pattern_list('done', pattern_intervened.pre_page, '0', search_pattern_intervened);"><i class="glyphicon glyphicon-chevron-left"></i></button>
+                            <button class="btn btn-primary btn-xs">{{pattern_intervened.this_page}}</button>
+                            <button class="btn btn-default btn-xs" ng-click="get_pattern_list('done', pattern_intervened.next_page, '0', search_pattern_intervened);"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                            <button class="btn btn-default btn-xs" ng-click="get_pattern_list('done', pattern_intervened.pageall, '0', search_pattern_intervened);"><i class="glyphicon glyphicon-step-forward"></i></button>
+                            <button class="btn btn-default btn-xs disabled">({{pattern_intervened.pageall}}页)</button>
+                            <div class="input-group input-group-md">
+                                <input type="text" class="form-control" id="pattern_intervened_goto_page" value="{{goto_some_page_intervened}}" placeholder="跳转页" ng-model="goto_some_page_intervened" style="height: 22px;font-size: 12px;">
+                                <span class="input-group-btn input-troup-btn-xs">
+                                                                <button class="btn btn-default  btn-xs" type="button" ng-click="get_pattern_list('done', goto_some_page_intervened, '0', search_pattern_intervened);" ><span class="glyphicon glyphicon-arrow-right" ></span></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /nlu-label-table -->
+            </div>
+            <!-- /row -->
+            <br>
+            <hr class="nlu-label-hr-light" style="display:none">
+            <br>
+            <br>
+        </div>
+        <!-- /nlu-right -->
+    </div>
+    <!-- end middle -->
+</div>
+</div>
+<br>
+<br>
+<br>
+<div class="row" id="pattern_intervention_page_bottom">
+    <!--<div class="col-md-3">
+            <ul style="margin-left: 4%;overflow:auto;height:500px;" id="ztree" class="ztree">
+        </div>-->
+    <div class="row col-md-offset-1 col-md-10">
+        <div class="form-group">
+            <!--<label class="nlu-wait-label col-sm-5">待标注<span class="badge badge-warning">{{pattern_wait_intervene.total}}</span></label>-->
+            <div class="input-group nlu-search col-md-8" style="width: 52%;">
+                <input type="text" class="form-control" placeholder="请输入关键字搜索" id="pattern_search_intervention" ng-model="search_pattern_intervention" value="">
+                <span class="input-group-btn">
+                                             <button class="btn btn-default" type="button" ng-click="get_pattern_list('wait', 1, now_status, search_pattern_intervention)"><span class="glyphicon glyphicon-search" ></span></button>
+                </span>
+            </div>
+            <!-- /input-group -->
+            <label class="col-sm-4" style="margin-top: -24px;float: right;">已标注：{{now_package.labeled_count}}，总数：{{now_package.current_volume}}</label>
+        </div>
+        <!-- /form-group -->
+    </div>
+    <div class="col-md-offset-1 col-md-10">
+        <table class="table table-condensed table-bordered table-hover">
+            <thead>
+                <th>模板</th>
+                <th>意图</th>
+                <th>状态</th>
+                <th>标注者</th>
+                <!--<th>修改时间</th>-->
+                <th>操作</th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="wi in pattern_wait_intervene.pattern_list" ng-if="now_package_type == 'pattern' " id="tr_pattern_{{wi.id}}">
+                    <td style="text-align:left" title="{{wi.pattern}}"><a href="" ng-click="pattern_edit_func(wi.id, now_status)">{{wi.pattern | limitTo:20}}<span ng-if="wi.pattern.length>20">...</span></a></td>
+                    <td>{{wi.intent}}</td>
+                    <td ng-if="wi.status==0 ">已标注</td>
+                    <td ng-if="wi.status==2 ">未标注</td>
+                    <td>{{wi.user_id}}</td>
+                    <!--<td>{{wi.update_time}}</td>-->
+                    <td><span class="glyphicon glyphicon-trash" ng-click="del_pattern(pattern_wait_intervene.package_id, wi.id, 'wait', pattern_wait_intervene.this_page, now_status)"></span></td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <div class="row col-md-12">
+            <div class="btn-group">
+                <button class="btn btn-default" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, 1, now_status, search_pattern_intervention);"><i class="glyphicon glyphicon-step-backward"></i> 首页</button>
+                <button class="btn btn-default" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, pattern_wait_intervene.pre_page, now_status, search_pattern_intervention);"><i class="glyphicon glyphicon-chevron-left"></i> 上一页</button>
+                <button class="btn btn-primary">{{pattern_wait_intervene.this_page}}</button>
+                <button class="btn btn-default" id="btn_next_page" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, pattern_wait_intervene.next_page, now_status, search_pattern_intervention);">下一页 <i class="glyphicon glyphicon-chevron-right"></i></button>
+                <button class="btn btn-default" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, pattern_wait_intervene.pageall, now_status, search_pattern_intervention);">末页 <i class="glyphicon glyphicon-step-forward"></i></button>
+                <button class="btn btn-default disabled">(共 {{pattern_wait_intervene.pageall}}页 / 共 {{pattern_wait_intervene.total}} 项)</button>
+                <div class="input-group col-md-2">
+                    <input type="text" class="form-control" id="pattern_wait_intervene_goto_page" value="{{goto_some_page_intervention}}" placeholder="跳转页" ng-model="goto_some_page_intervention">
+                    <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" ng-click="get_labeldata_list('pattern', pattern_wait_intervene.package_id, goto_some_page_intervention, now_status, search_pattern_intervention);" ><span class="glyphicon glyphicon-arrow-right" ></span></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        </br>
+        </br>
+        </br>
+    </div>
+    <!-- end col-md-12 -->
+</div>
+<!-- end row-->
+</div>
+<style>
+.sorting {
+    background: url('/static/images/sort_both.png') no-repeat right;
+    cursor: pointer !important;
+}
+
+.sorting_asc {
+    background: url('/static/images/sort_asc.png') no-repeat right;
+    cursor: pointer !important;
+}
+
+.sorting_desc {
+    background: url('/static/images/sort_desc.png') no-repeat right;
+    cursor: pointer !important;
+}
+</style>
+<link rel="stylesheet" href="/static/css/metroStyle.css" type="text/css">
+<link rel="stylesheet" href="/static/css/demo.css" type="text/css">
+<script type="text/javascript" src="/static/js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/js/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/js/jquery.ztree.exedit.js"></script>
+<script>
+$(document).ready(function(){
+    $("#label_pattern").focus();
+})
+$('#editable-select-add-pattern').editableSelect();
+
+$("#label_pattern").bind("keydown", function(e) {
+    // 兼容FF和IE和Opera
+    var theEvent = e || window.event;
+    var code = theEvent.keyCode || theEvent.which || theEvent.charCode;
+
+    if (code == 13) {
+        //回车执行查询
+        // $("#btn-chat-sent").click();
+
+        // $("#bot_msg").focus();
+        // //$("#bot_msg").select();
+        // e.returnValue = false;
+        return false;
+    }
+});
+
+function bind_pattern_func_slot(pattern_id, func_slot_id) {
+    func_map = {
+        "info-ynq": "用户主动单轮-信息查询类-是非问(info-ynq)",
+        "info-slctq": "用户主动单轮-信息查询类-比较/选项问(info-slctq)",
+        "info": "用户主动单轮-信息查询类-其他查询问(info)",
+        "exe": "用户主动单轮-请求行为类(exe)",
+        "update": "用户主动多轮-信息更新类(update)",
+        "ans-info": "BOT主动多轮-用户答复类-提供信息(ans-info)",
+        "ans-yn": "BOT主动多轮-用户答复类-是非答复(ans-yn)",
+        "null": "请选择",
+    }
+    var val = $("#editable-select-add-pattern").next().children("li.ng-binding.ng-scope.es-visible").attr("value");
+    if (typeof val == "undefined") {
+        var val_obj = $("#editable-select-add-pattern").next().children();
+        val_obj.each(function(index, element) {
+            if (element.className.indexOf("es-visible") >= 0) {
+                val = jQuery(element).attr("value");
+            }
+        });
+    }
+    var name_func = val.split(":");
+    //alert($("#"+intent_id).val() + " " + name_func[0] + " " + name_func[1]);
+    if (name_func[1] == "") name_func[1] = "null";
+    $("#" + func_slot_id).val(func_map[name_func[1]]);
+
+    $("#pattern_now_func_slot option").each(function() {
+        //alert($(this).val() + "  " + name_func[1]);
+        $(this).removeAttr("selected");
+        if ($(this).val() == name_func[1]) {
+            $(this).prop("selected", true);
+        }
+    });
+}
+
+function pattern_all() {
+    document.getElementById("pattern_form").reset();
+}
+
+function click_save_query_btn(e) {
+    // 兼容FF和IE和Opera
+    var theEvent = e || window.event;
+    var code = theEvent.keyCode || theEvent.which || theEvent.charCode;
+
+    if (code == 13) {
+        //回车执行查询
+        $("#btn_pattern_intervention_page_save").click();
+        //$("#bot_msg").select();
+        $("#btn_pattern_intervention_page_save").focus();
+        e.returnValue = false;
+        return false;
+    }
+}
+// $("#pattern_intervention_page_top").bind("keydown", function(e) {
+//     console.log("pattern_intervention_page_top");
+//     click_save_query_btn(e);
+// });
+// $("#pattern_intervention_page_bottom").bind("keydown", function(e) {
+//     console.log("pattern_intervention_page_bottom");
+//     click_save_query_btn(e);
+// });
+// $("#pattern_intervention_page_right").bind("keydown", function(e) {
+//     console.log("pattern_intervention_page_right");
+//     click_save_query_btn(e);
+// });
+$(document).jkey('ctrl+1',function(){
+    $("#label_pattern").focus();
+});
+$(document).jkey('ctrl+2',function(){
+    $("#editable-select-add-pattern-no-func-slot").focus();
+});
+$(document).keydown(function(event) {
+    var e = event || window.event;
+    var key = e.keyCode || e.which;
+    if (key == 13) {
+        click_save_query_btn(); // 点击  保存 按钮
+    }
+});
+</script>

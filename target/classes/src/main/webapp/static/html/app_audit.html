@@ -1,0 +1,158 @@
+<div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{true: 'tab-pane fade active in', false: 'tab-pane fade'}[true]" id="action_edit" aria-labelledby="action_edit-tab" class="col-md-10">
+        <br>
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10 nlu-appmodel-table">
+             <h4 class="">APP待审核</h4>
+            <div class="alert alert-warning alert-dismissible fade in" role="alert" ng-show="appaudit_setting_response_data.length == 0">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    暂无待审核app,请先进行创建
+                </div>
+<!--                 <div class="alert alert-warning alert-dismissible fade in" role="alert" ng-show="!action_edit_response_data.data.length">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    {{slot.intent_name}} 该app下暂无动作，请先进行添加。
+                </div> -->
+    <!--             <div ng-show="action_edit_response_data.data.length"> -->
+                    <div ng-show = "appaudit_setting_response_data.length!=0">
+                   
+                    <table class="table table-condensed table-bordered table-hover">
+                        <thead>
+                            <th>用户名</th>
+                            <th>app name</th>
+                            <th>描述</th>
+                            <th>创建时间</th>
+                            <th>更新时间</th>
+                            <th>操作</th>
+                        </thead>
+                <tbody id = "app_audit_tbody">
+                <tr ng-repeat= "ng_app in appaudit_setting_response_data">
+                <td>
+                {{ng_app.user_id}}
+                </td>
+                <td>
+                {{ng_app.name}}
+                </td>
+                <td>
+                {{ng_app.description}}
+                </td>
+                <td>
+                {{ng_app.create_time}}
+                </td>
+                <td>
+                {{ng_app.update_time}}
+                </td>
+                <td>
+                <button type="button" id = "button_pass_{{ng_app.id}}"  class="btn btn-primary btn-xs" data-target="#audit_pass_{{ng_app.id}}" data-toggle="modal" >通过</button>
+                   <!--  <span  class="glyphicon glyphicon-trash" data-toggle="modal"  data-target="#audit_pass_{{ng_app.id}}" title="通过"></span> -->
+                                            <div class="modal fade" id="audit_pass_{{ng_app.id}}" tabindex="-1" role="dialog" aria-labelledby="button_pass_{{ng_app.id}}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h4 class="modal-title" id="myModalEdit">确认通过该APP？</h4>
+
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary"   ng-click="audit_pass(ng_app)">通过</button>
+                                                  <button type="button" class="btn btn-default" data-dismiss="modal" ng-model="add_action_cancel_model" id = "audit_cancel_{{ng_app.id}}">取消</button>
+
+                                                </div>
+                                                </div>
+                                                </div>
+                                                </div>
+                </td>
+
+                </tr>
+                </tbody>
+                </table>
+                <div class="btn-toolbar nlu-page">
+                        <div class="btn-toolbar">
+                            <div class="btn-group">
+                                <button class="btn btn-default" ng-click="audit_goto_page(1);"><i class="icon-step-backward"></i> 首页</button>
+                                <button class="btn btn-default" ng-click="audit_goto_page(appaudit_setting.cur_page- 1);"><i class="icon-chevron-left"></i> 上一页</button>
+                                <button class="btn btn-primary">{{appaudit_setting.cur_page}}</button>
+                                <button class="btn btn-default" ng-click="audit_goto_page(appaudit_setting.cur_page + 1);">下一页 <i class="icon-chevron-right"></i></button>
+                                <button class="btn btn-default" ng-click="audit_goto_page(appaudit_setting.total_page);">末页 <i class="icon-step-forward"></i></button>
+                                <button class="btn btn-default disabled">共({{appaudit_setting.total_num}}项，共{{appaudit_setting.total_page}}页)</button>
+                                <div class="input-group input-group col-md-2">
+                                    <input type="text" class="form-control" id="model_list_goto_page" value="{{goto_some_page}}" placeholder="跳转页" ng-model="goto_some_page">
+                                    <span class="input-group-btn">
+                                                            <button class="btn btn-default" type="button" ng-click="audit_goto_page(goto_some_page);" ><span class="glyphicon glyphicon-search" ></span></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                </div>
+            </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{true: 'tab-pane fade active in', false: 'tab-pane fade'}[true]" id="action_edit" aria-labelledby="action_edit-tab" class="col-md-10">
+        <br>
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10 nlu-appmodel-table">
+              <h4 class="">APP已审核</h4>
+              <div class="alert alert-warning alert-dismissible fade in" role="alert" ng-show="appeffect_setting_response_data.length == 0">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    暂无审核通过的app,请先进行创建、审核
+                </div>
+
+<!--                 <div class="alert alert-warning alert-dismissible fade in" role="alert" ng-show="!action_edit_response_data.data.length">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    {{slot.intent_name}} 该app下暂无动作，请先进行添加。
+                </div> -->
+    <!--             <div ng-show="action_edit_response_data.data.length"> -->
+                    <div ng-show="appeffect_setting_response_data.length!=0">
+                  
+                    <table class="table table-condensed table-bordered table-hover">
+                        <thead>
+                            <th>用户名</th>
+                            <th>app name</th>
+                            <th>描述</th>
+                            <th>创建时间</th>
+                            <th>更新时间</th>
+                     
+                        </thead>
+                <tbody>
+                         <tr ng-repeat= "ng_app in appeffect_setting_response_data">
+                <td>
+                {{ng_app.user_id}}
+                </td>
+                <td>
+                {{ng_app.name}}
+                </td>
+                <td>
+                {{ng_app.description}}
+                </td>
+                <td>
+                {{ng_app.create_time}}
+                </td>
+                <td>
+                {{ng_app.update_time}}
+                </td>
+                </tr>
+                </tbody>
+                        </table>
+                        <div class="btn-toolbar nlu-page">
+                        <div class="btn-toolbar">
+                            <div class="btn-group">
+                                <button class="btn btn-default" ng-click="appeffect_goto_page(1);"><i class="icon-step-backward"></i> 首页</button>
+                                <button class="btn btn-default" ng-click="appeffect_goto_page(appeffect_setting.cur_page- 1);"><i class="icon-chevron-left"></i> 上一页</button>
+                                <button class="btn btn-primary">{{appeffect_setting.cur_page}}</button>
+                                <button class="btn btn-default" ng-click="appeffect_goto_page(appeffect_setting.cur_page + 1);">下一页 <i class="icon-chevron-right"></i></button>
+                                <button class="btn btn-default" ng-click="appeffect_goto_page(appeffect_setting.total_page);">末页 <i class="icon-step-forward"></i></button>
+                                <button class="btn btn-default disabled">共({{appeffect_setting.total_num}}项，共{{appeffect_setting.total_page}}页)</button>
+                                <div class="input-group input-group col-md-2">
+                                    <input type="text" class="form-control" id="model_list_goto_page" value="{{goto_some_page2}}" placeholder="跳转页" ng-model="goto_some_page2">
+                                    <span class="input-group-btn">
+                                                            <button class="btn btn-default" type="button" ng-click="appeffect_goto_page(goto_some_page);" ><span class="glyphicon glyphicon-search" ></span></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
