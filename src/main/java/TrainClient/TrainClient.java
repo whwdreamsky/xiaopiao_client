@@ -2,12 +2,14 @@ package TrainClient;
 import DialogManagement.DialogManagement;
 import DialogManagement.DMResultBean;
 import NLU.*;
+import UtilTools.UtilTools;
 import com.google.gson.Gson;
 import webservice.TrainInfoData;
 import webservice.TrainTicketInquire;
 import webservice.TrainTicketRealTimeData;
 import webservice.TrainToFromData;
 
+import javax.xml.bind.annotation.XmlElementDecl;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -75,6 +77,7 @@ public class TrainClient {
       printparams(schemaConifg);
       nlgneed = new HashMap<String,String>();
       trainLogicMatch(schemaConifg,dmResultBean);
+
       //NLG 自然语言生成
       NLGenerateFactory nlGenerateFactory = new NLGenerateFactory(nlgneed,schemaConifg);
       nlGenerateFactory.nlgProcess();
@@ -130,10 +133,8 @@ public class TrainClient {
       TrainTicketInquire trainTicketInquire = new TrainTicketInquire();
       MakeNlgneed makeNlgneed = new MakeNlgneed(schemaConifg);
       TrainDataRedis getTrainDataRedis = new TrainDataRedis(schemaConifg);
-      if(schemaConifg.getIntent().equals("TRAINLIST")||schemaConifg.getIntent().equals("TRAINPRICE")||schemaConifg.getIntent().equals("TRAINTIMECOST"))
+      if(schemaConifg.getIntent().equals(GlobalData.TRAINLIST)||schemaConifg.getIntent().equals(GlobalData.TRAINPRICE)||schemaConifg.getIntent().equals(GlobalData.TRAINTIMECOST))
       {
-
-
           List<TrainToFromData> trainToFromDataList=getTrainDataRedis.getTrainListData();
           if(trainToFromDataList==null)
           {
@@ -194,35 +195,45 @@ public class TrainClient {
           List <TrainTicketRealTimeData> trainTicketRealTimeDataList = getTrainDataRedis.getTrainTicketData();
           if(trainTicketRealTimeDataList==null)
           {
-              GlobalData globalData = new GlobalData();
-              globalData.LOADTRAINCODE();
-              System.err.println("a1");
-              String startcode = globalData.traincode.get(schemaConifg.getStartpoint().getValue());
-              String arrivecode = globalData.traincode.get(schemaConifg.getArrivepoint().getValue());
-              System.out.println("startcode:"+startcode);
-              System.out.println("arrivecode:"+arrivecode);
-              if(globalData.traincode.containsKey(schemaConifg.getStartpoint().getValue())&&globalData.traincode.containsKey(schemaConifg.getArrivepoint().getValue()))
+              if(GlobalData.traincode==null)
               {
-                  System.err.println("a2");
-                  startcode = globalData.traincode.get(schemaConifg.getStartpoint().getValue());
-                  arrivecode = globalData.traincode.get(schemaConifg.getArrivepoint().getValue());
-                  System.out.println("startcode1:"+startcode);
-                  System.out.println("arrivecode2:"+arrivecode);
-                  trainTicketRealTimeDataList = trainTicketInquire.getTrainTicketRealTime(startcode,arrivecode,schemaConifg.getStarttime().getDate(),"");
+                  GlobalData.LOADTRAINCODE();
+                  System.err.println("no station data!!");
+                  System.err.println("station_map size: "+GlobalData.traincode.size());
+              }
+              else
+              {
+                  System.err.println("have station data!!");
+                  System.err.println("station_map size: "+GlobalData.traincode.size());
+              }
+              System.err.println("a1");
+              String startcode = GlobalData.traincode.get(schemaConifg.getStartpoint().getValue());
+              String arrivecode = GlobalData.traincode.get(schemaConifg.getArrivepoint().getValue());
+              String startcode_utf8 = GlobalData.traincode.get(UtilTools.tranStrToUtf8(schemaConifg.getStartpoint().getValue()));
+              String arrivecode_utf8 = GlobalData.traincode.get(UtilTools.tranStrToUtf8(schemaConifg.getArrivepoint().getValue()));
 
+              System.out.println("arrivecode:"+arrivecode);
+
+              if(startcode!=null&&arrivecode!=null)
+              {
+                  System.out.println("startcode:"+startcode);
+                  System.out.println("arrivecode:"+arrivecode);
+                  trainTicketRealTimeDataList = trainTicketInquire.getTrainTicketRealTime(startcode,arrivecode,schemaConifg.getStarttime().getDate(),"");
+                  if(trainTicketRealTimeDataList!=null) getTrainDataRedis.setTrainTicket(trainTicketRealTimeDataList);
+              }
+              else if(startcode_utf8!=null&&arrivecode_utf8!=null)
+              {
+                  trainTicketRealTimeDataList = trainTicketInquire.getTrainTicketRealTime(startcode_utf8,arrivecode_utf8,schemaConifg.getStarttime().getDate(),"");
+                  if(trainTicketRealTimeDataList!=null) getTrainDataRedis.setTrainTicket(trainTicketRealTimeDataList);
               }
               else
               {
                   System.err.println("a3");
                   nlgneed.put("type","wrongstation");
+                  return;
+              }
 
-              }
-              if(trainTicketRealTimeDataList!=null)
-              {
-                  getTrainDataRedis.setTrainTicket(trainTicketRealTimeDataList);
-              }
           }
-
           if(trainTicketRealTimeDataList!=null)
           {
               System.err.println("a5");
@@ -245,20 +256,7 @@ public class TrainClient {
           }
           else
           {
-              //这里作为临时修补
-              System.err.println("a8");
-              if(nlgneed.containsKey("type"))
-              {
-                  if(!nlgneed.get("type").equals("wrongstation"))
-                  {
-                      nlgneed.put("type","nodata");
-                  }
-              }
-              else
-              {
-                  System.err.println("a9");
-                  nlgneed.put("type","nodata");
-              }
+              nlgneed.put("type","nodata");
 
           }
 

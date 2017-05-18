@@ -1,9 +1,8 @@
 package TrainClient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import UtilTools.UtilTools;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +11,23 @@ import java.util.Map;
  */
 public class GlobalData {
 
-    public  Map<String,String> traincode=null;
+    public  static Map<String,String> traincode=null;
+    //intent name
+    public static final String TRAININFO = "TRAININFO";
+    public static final String TRAINLIST = "TRAINLIST";
+    public static final String TRAINPRICE = "TRAINPRICE";
+    public static final String TRAINTICKET = "TRAINTICKET";
+    public static final String TRAINTIMEARRIVE = "TRAINTIMEARRIVE";
+    public static final String TRAINTIMECOST = "TRAINTIMECOST";
+    public static final String TRAINTIMESTART = "TRAINTIMESTART";
+    public static final String ORDERCANCEL = "ORDERCANCEL";
+    public static final String ORDERINQUIRE = "ORDERINQUIRE";
+    public static final String ORDERTICKET = "ORDERTICKET";
+    public static final String UPDATESLOT = "UPDATESLOT";
+    public static final String CONFIRM = "CONFIRM";
+    public static final String Fallback = "Fallback";
+
+
     public static  String GetTrainType(String traintype)
     {
         Map<String,String> traintypemap = new HashMap();
@@ -51,12 +66,18 @@ public class GlobalData {
         return  seattype;
 
     }
-    public  void LOADTRAINCODE()
-    {
+    public static void LOADTRAINCODE()  {
         if(traincode!=null)return;
         InputStream in = GlobalData.class.getClassLoader().getResourceAsStream("./conf/traincode_name.txt");
         traincode = new HashMap<>();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+        BufferedReader bufferedReader = null;
+
+        try {
+            bufferedReader = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
         String str=null;
         try {
             str = bufferedReader.readLine();
@@ -65,10 +86,9 @@ public class GlobalData {
                 String[] strlist = str.split("\t");
                 if(strlist.length==2)
                 {
-                    traincode.put(strlist[1],strlist[0]);
+                    traincode.put(strlist[0],strlist[1]);
                 }
                 str = bufferedReader.readLine();
-
             }
         } catch (IOException e) {
             e.printStackTrace();

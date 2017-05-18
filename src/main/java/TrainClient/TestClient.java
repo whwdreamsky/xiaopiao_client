@@ -21,7 +21,7 @@ public class TestClient
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             System.out.print(INPUT_PROMPT);
             while (null != (line = reader.readLine())) {
-               trainClient.run("oliver56",line);
+               trainClient.run("oliver58",line);
                 System.out.print(INPUT_PROMPT);
             }
         } catch (IOException ex) {

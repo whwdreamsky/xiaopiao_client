@@ -10,7 +10,7 @@ import ai.api.model.Result;
 
 public class QueryUnderstand {
 
-  private static final String APIKEY="ae92b10924ff4311a01762c1efa4cbbc";
+  private static final String APIKEY="85e15ecbcd2243db9e931fde7251a7a0";
   private AIConfiguration configuration;
   private AIDataService dataService;
   private String userid;
@@ -66,10 +66,7 @@ public class QueryUnderstand {
 
     try{
       AIServiceContext aiServiceContext = AIServiceContextBuilder.buildFromSessionId(userid);
-    AIRequest request = new AIRequest(query);
-
-
-
+      AIRequest request = new AIRequest(query);
       AIResponse response = dataService.request(request,aiServiceContext);
 
       if (response.getStatus().getCode() == 200) {

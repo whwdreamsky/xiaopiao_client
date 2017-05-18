@@ -25,10 +25,6 @@
     <script src="./static/js/jquery.min.1.11.js"></script>
    <!-- <script src="./static/js/jquery-editable-select.min.js"></script>-->
     <script src="./static/js/HZRecorder.min.js"></script>
-    <!--<script src="/static/js/jquery.jsonview.min.js"></script>-->
-    <!--<script src="/static/js/jquery-ui.min.js"></script>
-    <script src="/static/js/jquery-ui.html.js"></script>-->
-    <!--<script data-main="/static/js/views/app.js" src="/static/js/requirejs/require.js"></script>-->
 <link type="text/css" rel="stylesheet" href="chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/css/searchhelper.css"><style>#haloword-pron { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -94px -34px; }#haloword-pron:hover { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -111px -34px; }#haloword-open { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -94px -17px; }#haloword-open:hover { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -111px -17px; }#haloword-close { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -94px 0; }#haloword-close:hover { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -111px 0; }#haloword-add { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -94px -51px; }#haloword-add:hover { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -111px -51px; }#haloword-remove { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -94px -68px; }#haloword-remove:hover { background: url(chrome-extension://bhkcehpnnlgncpnefpanachijmhikocj/img/icon.svg) -111px -68px; }</style><style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
 .en-markup-crop-options {
     top: 18px !important;
@@ -70,10 +66,8 @@
                             <label id="userid_label">oliver</label>
                         </button>
 
-
-
                     </div>
-                    <div class="panel-body msg_container_base" id="bot_msg_content"><div class="row msg_container base_sent">    <div class="col-md-10 col-xs-10">        <div class="messages msg_sent">            <p class="">123</p><time datetime="" class="">2017-03-27 19:10:16&nbsp;&nbsp;<button class="btn btn-default btn-xs" onclick="show_json_info(&#39;json_1490613016000_37729&#39;)">查看json</button></time>        </div>    </div>    <div class="col-md-2 col-xs-2 avatar">        <img src="./static/img/user.gif" height="100" width="100" class="img-responsive">    </div></div><div class="row msg_container base_receive">                        <div class="col-md-2 col-xs-2 avatar">                            <img src="./static/img/unit_bot.png" height="100" width="100" class="img-responsive">                        </div>                        <div class="col-md-10 col-xs-10">                            <div class="messages msg_receive">                                <p class="">验证失败</p>                                <time datetime="" class="">2017-03-27 19:10:17</time></div>                        </div>                    </div></div>
+                    <div class="panel-body msg_container_base" id="bot_msg_content"></div>
                     <div id="msg_end" style="height:0px; overflow:hidden"></div>
                     <div class="panel-footer">
                                 <div class="modal fade" id="myModalCheckAdvance" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="color:#333">
@@ -368,7 +362,7 @@ function autodivheight(){ //函数：获取尺寸
     //DIV高度为浏览器窗口的高度
     //document.getElementById("test").style.height= winHeight +"px";
     //DIV高度为浏览器窗口高度的一半
-    document.getElementById("bot_chat_panel").style.height= winHeight * 0.85  +"px";
+    document.getElementById("bot_chat_panel").style.height= winHeight * 0.7  +"px";
     document.getElementById("bot_json_content").style.height= winHeight *0.92 +"px";
 
 }
