@@ -35,8 +35,7 @@ public class SessionDAO extends MyBatisAbstractDAO{
 
         }
         return sessionObjectlist.get(0);
-
-    }
+        }
     }
 
     public int insertSession(SessionObject sessionObject)

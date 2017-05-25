@@ -1,6 +1,9 @@
 package DAO;
 
+import Action.HistoryRecordAction;
 import DialogManagement.SessionObject;
+import TrainClient.HistorySession;
+import UtilTools.UtilTools;
 
 import java.util.Date;
 import java.util.Random;
@@ -11,6 +14,28 @@ import java.util.Random;
 public class test {
     public static void  main(String args[])
     {
+        HistoryRecordDAO historyRecordDAO = new HistoryRecordDAO();
+        HistorySession historySession = new HistorySession();
+        historySession.setAppname("weather");
+        historySession.setFinalresultlist("fwfqa");
+        historySession.setUpdatetime(UtilTools.GetCurrentTimeStr());
+        historySession.setUserid("whw");
+        //int reuslt = historyRecordDAO.insertHistorySession(historySession);
+        //System.out.println(reuslt);
+
+        /*
+        HistorySession historySession1 = historyRecordDAO.selectFitRecord("whw","weather");
+        if(historySession1!=null)
+        {
+            System.out.println(historySession1.getSessionid());
+            historySession1.setFinalresultlist("yeye");
+            historyRecordDAO.updateHistorySession(historySession1);
+        }
+
+*/
+        //HistoryRecordAction historyRecordAction = new HistoryRecordAction(historySession.getUserid(),historySession.getAppname());
+        //historyRecordAction.insertSession()
+
         /*
         SqlSession sqlSession = MyBatisUtil.getSqlSession();
         Map<String,String> selectword = new HashMap<String,String>();
@@ -53,6 +78,7 @@ public class test {
         sessionDAO.closeSession();
         */
 
+       /*
         int max=1;
         int min=1;
         for(int i=0;i<20;i++)
@@ -62,6 +88,7 @@ public class test {
             System.out.println(s);
 
         }
+        */
 
 
     }

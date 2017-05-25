@@ -116,7 +116,6 @@ public class SessionManagement {
     }
     public String updateSessionTime()
     {
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String datastring = simpleDateFormat.format(new Date());
         return datastring;

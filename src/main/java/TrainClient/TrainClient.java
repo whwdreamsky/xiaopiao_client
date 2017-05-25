@@ -30,6 +30,8 @@ public class TrainClient {
     private DialogManagement dialogManagement;
     private Map<String,String> nlgneed;
     private List<String> result;
+    private DMResultBean dmResultBean;
+    private List<String> patternlist;
 
   public static void main(String args[])
   {
@@ -67,7 +69,7 @@ public class TrainClient {
       // DM 动作管理模块
       dialogManagement = new DialogManagement();
       dialogManagement.dialogManageProcess(nluResult);
-      DMResultBean dmResultBean  = dialogManagement.getDmResultBean();
+      dmResultBean  = dialogManagement.getDmResultBean();
 
       //逻辑适配模块
       String actiontype = dmResultBean.getActiontype();
@@ -76,12 +78,13 @@ public class TrainClient {
       schemaConifg.filledSchema(dmResultBean);
       printparams(schemaConifg);
       nlgneed = new HashMap<String,String>();
-      trainLogicMatch(schemaConifg,dmResultBean);
+      trainLogicMatch(schemaConifg);
 
       //NLG 自然语言生成
       NLGenerateFactory nlGenerateFactory = new NLGenerateFactory(nlgneed,schemaConifg);
       nlGenerateFactory.nlgProcess();
       result = nlGenerateFactory.getNlgresult();
+      patternlist= nlGenerateFactory.getPatternlist();
       for(int i=0;i<result.size();i++)
       {
           System.out.println("result"+result.get(i));
@@ -89,7 +92,7 @@ public class TrainClient {
 
   }
 
-  public Map trainLogicMatch(SchemaConifg schemaConifg,DMResultBean dmResultBean)
+  public Map trainLogicMatch(SchemaConifg schemaConifg)
   {
       if (schemaConifg.getActiontype().equals("satisfy"))
       {
@@ -102,7 +105,7 @@ public class TrainClient {
           }
           else
           {
-              filterdataByIntent(schemaConifg,dmResultBean);
+              filterdataByIntent(schemaConifg);
           }
 
 
@@ -128,7 +131,7 @@ public class TrainClient {
   }
 
 
-  public void filterdataByIntent(SchemaConifg schemaConifg,DMResultBean dmResultBean)
+  public void filterdataByIntent(SchemaConifg schemaConifg)
   {
       TrainTicketInquire trainTicketInquire = new TrainTicketInquire();
       MakeNlgneed makeNlgneed = new MakeNlgneed(schemaConifg);
@@ -230,6 +233,7 @@ public class TrainClient {
               {
                   System.err.println("a3");
                   nlgneed.put("type","wrongstation");
+                  getTrainDataRedis.getRedisUtil().closeReis();
                   return;
               }
 
@@ -266,6 +270,7 @@ public class TrainClient {
       {
           nlgneed.put("type","satisfy");
       }
+      getTrainDataRedis.getRedisUtil().closeReis();
   }
 
 
@@ -333,6 +338,17 @@ public class TrainClient {
   }
 
 
+    public DMResultBean getDmResultBean() {
+        return dmResultBean;
+    }
+
+    public void setDmResultBean(DMResultBean dmResultBean) {
+        this.dmResultBean = dmResultBean;
+    }
+
+    public List<String> getPatternlist() {
+        return patternlist;
+    }
 }
 
 

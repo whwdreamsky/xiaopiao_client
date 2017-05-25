@@ -130,7 +130,7 @@
                             </div>
                             <button class="btn btn-default" onclick="hidden_json()"><span class="glyphicon glyphicon-arrow-left">返回</span></button>
                         </div>
-                        <pre class="panel-body msg_container_base" id="bot_json_content" style="height: 138.92px;">{
+                        <pre class="panel-body msg_container_base" id="bot_json_content" style="height: 138.92px;overflow:auto">{
   <span class="key">"type":</span> <span class="string">"bot_query"</span>,
   <span class="key">"sample_name":</span> <span class="string">"ibf_qucloud_server"</span>,
   <span class="key">"request_type":</span> <span class="string">"qu_cloud"</span>,
@@ -785,20 +785,14 @@ function send_to_bot(msg_id, content_id)
     var log_id = username+"_log_" + Date.parse(new Date()) + "_" + RandomNumBoth();
     var send_json_timestamp = "json_" + Date.parse(new Date()) + "_" + RandomNumBoth();
     var send_json = {
-        "type":"bot_query",
+        "appname":"xiaopiao",
         "sample_name":"ibf_qucloud_server",              //具体bot APP 的app_id
-        "request_type": "qu_cloud",            //请求类型 区分请求环境， qu_cloud, web, test
-        "user_id":bot_user_id,                     // 用户ID
+        "user_id":$("#userid").val(),                     // 用户ID
         "query":msg,
         //"user_info":{}, //用户当前的个性化信息
-        "user_info": $("#advance_user_info").val(),
         "version":"1.0",                           //string 预留字段
-        "log_id": log_id,                            //log_id记录该请求的唯一标识字符串，方便调试追踪
-        "bot-session": bot_session,               // 原样返还上轮bot给出的session结果
-        "client-session": client_session,
-        "cross-bot-session": "" // 最近几轮的中控状态, 保留字段
     }
-    console.log("send json:")
+    console.log("send json:");
     console.log(send_json);
     make_json_content(send_json_timestamp, send_json);
     var sent_msg = make_send(msg, send_json_timestamp);
@@ -814,47 +808,22 @@ function send_to_bot(msg_id, content_id)
             },
             success: function(msg) {
                 //这是成功返回的数据，写自己的逻辑
+                var recive_json_timestamp = "json_" + Date.parse(new Date()) + "_" + RandomNumBoth();
                 if(msg["errno"]==0)
                 {
                     console.log(msg["msg"]);
-                    make_dlg(make_receive(msg["result"],msg));
+
+                    make_json_content(recive_json_timestamp, msg);
+                    make_dlg(make_receive(msg["result"]["response"],recive_json_timestamp));
 
                 }
-                    /*
-                    setCookie("bot_session", msg["data"]["bot-session"]);
-                    console.log("in send_to_bot: get bot session:");
-                    console.log(msg["data"]["bot-session"]);
-                    var action_list = res["action_list"][0];
-                    setCookie("action_list", JSON.stringify(action_list));
-                    var current_intent = res["schema"]["current_qu_intent"];
-                    var bms = res["schema"]["bot_merged_slots"];
-                    var bot_merged_slots = "";
-                    var show_slot = [];
-                    for(var i = 0; i< bms.length; i++)
-                    {
-                        var ai = bms[i]["type"];
-                        if(!show_slot[ai]){
-                            show_slot[ai] = 1;
-                            bot_merged_slots += " "+bms[i]["type"] + "：<label class='label label-info'>" +bms[i]["original_word"] + "(" + bms[i]["normalized_word"] +")</label><br>";
-                            show_slot[bms[i]["type"]] += 1;
-                        }else{
-                            show_slot[ai]++;
-                        }
-                    }
-                    var json_timestamp = "json_"+Date.parse(new Date()) + "_" + RandomNumBoth();
-                    make_json_content(json_timestamp, res);//
-                    var info = make_receive("回复："+ action_list["say"] + hr_line + "BOT动作：" + action_list["action_id"] + "<br>当前会话意图：" + current_intent +"<br>当前会话槽位：<br>" + bot_merged_slots, json_timestamp);
-                    make_dlg(info);
-                    //setCookie("");
-
-                }
-                     */
                 else
                 {
                     make_dlg(make_receive(msg["msg"],"none"));
                     console.log(msg["errno"]);
                     console.log(msg["msg"]);
                 }
+                make_json_content(recive_json_timestamp, msg);
 
             },
             error: function(msg)

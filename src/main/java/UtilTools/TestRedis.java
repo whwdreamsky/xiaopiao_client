@@ -6,12 +6,11 @@ package UtilTools;
 public class TestRedis {
     public static void main(String args[])
     {
-        /*
+
         RedisUtil redisUtil = new RedisUtil();
         redisUtil.setup();
         redisUtil.testMap();
-        */
-        System.out.println(ReadProperties.getDMPropers("maxround"));
+        //System.out.println(ReadProperties.getDMPropers("maxround"));
 
     }
 }

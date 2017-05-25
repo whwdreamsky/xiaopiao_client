@@ -1,5 +1,6 @@
 package Servlet;
 
+import Action.HistoryRecordAction;
 import DAO.SessionDAO;
 
 import javax.servlet.ServletException;
@@ -37,6 +38,9 @@ public class ClearServlet extends BaseServlet {
             msg.put("msg","该用户无session");
         }
         responseJson(response,msg);
+        //修改历史日志状态为不可继续写入
+        HistoryRecordAction historyRecordAction = new HistoryRecordAction(userid,"xiaopiao");
+        historyRecordAction.modifyState();
 
     }
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

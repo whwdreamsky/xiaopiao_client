@@ -60,11 +60,33 @@ public class QueryUnderstand {
     return nluresult;
   }
 
+  // query 预处理, 这里简单解决火车名问题
+  public String preprocess(String query)
+  {
+    char[] traintype = {'t','T','d','D','g','G','z','Z','y','Y','k','K','p','P','h','H'};
+    String newstr = "";
+    for(int i=0;i<query.length();i++)
+    {
+      for(int j=0;j<traintype.length;j++)
+      {
+        if(query.charAt(i)==traintype[j])
+        {
+          newstr=query.substring(0,i)+' '+query.substring(i,query.length());
+          return newstr;
+        }
+      }
+    }
+    return query;
+
+
+  }
+
 
   public NLUResult nluProcess (String appname,String userid,String query)
   {
 
     try{
+      query = preprocess(query);
       AIServiceContext aiServiceContext = AIServiceContextBuilder.buildFromSessionId(userid);
       AIRequest request = new AIRequest(query);
       AIResponse response = dataService.request(request,aiServiceContext);

@@ -14,9 +14,18 @@ public class RedisUtil {
 
     public void setup() {
         //连接redis服务器，192.168.59.133:6379
-        jedis = new Jedis("192.168.59.133", 6380);
-        //权限认证
-       // jedis.auth("JOOIEJfwefewfOFJCijwefoiwejfeEFWQ9w2oieiwojfeojew123FWEF");
+        try{
+            //jedis = new Jedis("23.83.235.158", 6379);
+            jedis = new Jedis("127.0.0.1", 6379);
+            //权限认证
+            //jedis.auth("JOOIEJfwefewfOFJCijwefoiwejfeEFWQ9w2oieiwojfeojew123FWEF");
+            jedis.connect();
+
+        }
+        catch (Exception e)
+        {
+            System.out.println("Redis can't be connected !!");
+        }
 
     }
 
@@ -28,18 +37,12 @@ public class RedisUtil {
         jedis.set(key,value);
     }
 
-    public String getValueByKey(String key)
+public String getValueByKey(String key)
     {
         Boolean isexists = false;
-        try {
-            isexists = jedis.exists(key);
-            if(isexists==true) return jedis.get(key);
-            else return null;
-        }
-        catch (Exception e) {
-            System.err.println("Redis can't be connected");
-            return null;
-        }
+        isexists = jedis.exists(key);
+        if(isexists==true) return jedis.get(key);
+        else return null;
 
     }
 
@@ -154,5 +157,10 @@ public class RedisUtil {
 
     public void setJedis(Jedis jedis) {
         this.jedis = jedis;
+    }
+
+    public void closeReis()
+    {
+        jedis.close();
     }
 }

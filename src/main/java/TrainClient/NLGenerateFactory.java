@@ -187,4 +187,8 @@ public class NLGenerateFactory
     public List<String> getNlgresult() {
         return nlgresult;
     }
+
+    public List<String> getPatternlist() {
+        return patternlist;
+    }
 }

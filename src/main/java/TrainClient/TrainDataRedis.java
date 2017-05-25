@@ -83,5 +83,7 @@ public class TrainDataRedis {
         redisUtil.saveStringKV(rediskey,new Gson().toJson(trainTicketRealTimeDataList));
     }
 
-
+    public RedisUtil getRedisUtil() {
+        return redisUtil;
+    }
 }

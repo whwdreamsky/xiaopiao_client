@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper  namespace="HistorySession">
+    <!-- 查询全部session -->
+    <select id="allHistorySession" resultType="TrainClient.HistorySession">
+        select * from historysession
+    </select>
+    <!-- 按照用户名,appname,状态，查询 -->
+    <select id="historyselect" parameterType="hashmap" resultType="TrainClient.HistorySession">
+        select * from historysession where appname=#{appname} AND userid=#{userid} AND state=#{state}
+    </select>
+    <!-- 添加历史信息 -->
+    <insert id="historyinsert" parameterType="TrainClient.HistorySession">
+        insert into historysession values(#{finalresultlist},#{appname},#{updatetime},#{userid},#{round},#{state})
+    </insert>
+    <!-- 修改用户 -->
+    <update id="historyupdate" parameterType="TrainClient.HistorySession">
+        update historysession set finalresultlist=#{finalresultlist},updatetime=#{updatetime},round=#{round} where sessionid=#{sessionid}
+    </update>
+    <update id="modifystate" parameterType="hashmap">
+        update historysession set state=#{state} where sessionid=#{sessionid}
+    </update>
+    <!-- 删除用户 -->
+    <delete id="historydelete" parameterType="TrainClient.HistorySession">
+        delete  FROM  historysession where appname=#{appname} AND  userid=#{userid}
+    </delete>
+</mapper>

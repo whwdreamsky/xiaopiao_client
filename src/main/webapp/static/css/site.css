@@ -61,7 +61,8 @@ body > .container-fluid {
 .list-group-item.active:focus {
     z-index: 2;
     color: #fff;
-    background-color: #486195 border-color: #486195;
+    background-color: #486195 ;
+    border-color: #486195;
 }
 
 .head {
@@ -620,6 +621,9 @@ a.desc:after {
 
 .string {
     color: green;
+    word-break:break-all;
+    width:200px;
+    overflow:auto;
 }
 
 .number {

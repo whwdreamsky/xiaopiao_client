@@ -1,7 +1,10 @@
 package Servlet;
 
+import Action.HistoryRecordAction;
 import TrainClient.TrainClient;
+import TrainClient.FinalResult;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -35,7 +38,7 @@ public class GetQueryServlet extends HttpServlet{
     {
         String userid = request.getParameter("userid");
         String query = request.getParameter("query");
-        Map msg = new HashMap<String,String>();
+        Map msg = new HashMap<String,JsonElement>();
         msg.put("errno","0");//0表示正常
         msg.put("msg","success");
         response.setCharacterEncoding("UTF-8");
@@ -55,12 +58,15 @@ public class GetQueryServlet extends HttpServlet{
             //随机输出一个回复
             TrainClient trainClient = new TrainClient();
             trainClient.run(userid,query);
-            List<String> result = trainClient.getResult();
-            int max = result.size();
-            int min =1;
-            Random random = new Random();
-            int resultindex = random.nextInt(max)%(max-min+1)+min;
-            msg.put("result",trainClient.getResult().get(resultindex-1));
+            FinalResult finalResult = new FinalResult();
+            makeFinalResult(finalResult,trainClient);
+            JsonElement reulstelement = new Gson().toJsonTree(finalResult);
+            msg.put("result",reulstelement);
+
+            //将解析结果存入历史信息
+            HistoryRecordAction historyRecordAction = new HistoryRecordAction(userid,"xiaopiao");
+            historyRecordAction.insertSession(finalResult);
+
         }
         PrintWriter out = null;
         try {
@@ -74,6 +80,20 @@ public class GetQueryServlet extends HttpServlet{
             out.close();
         }
 
+
+    }
+
+    public void makeFinalResult(FinalResult finalResult,TrainClient trainClient)
+    {
+        List<String> result = trainClient.getResult();
+        finalResult.setDmResultBean(trainClient.getDmResultBean());
+        finalResult.setResultlist(result);
+        finalResult.setPatternlist(trainClient.getPatternlist());
+        int max = result.size();
+        int min =1;
+        Random random = new Random();
+        int resultindex = random.nextInt(max)%(max-min+1)+min;
+        finalResult.setResponse(result.get(resultindex-1));
 
     }
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

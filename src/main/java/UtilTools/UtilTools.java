@@ -1,6 +1,9 @@
 package UtilTools;
 
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by oliver on 2017/5/16.
@@ -54,5 +57,36 @@ public class UtilTools {
         }
         return "";
     }
+
+    public static String GetCurrentTimeStr()
+    {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String datastring = simpleDateFormat.format(new Date());
+        return datastring;
+    }
+
+    public static Date TransferTimestrToDate(String timestr)
+    {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = null;
+            try {
+                date = simpleDateFormat.parse(timestr);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            return null;
+        }
+        return date;
+    }
+
+
+
+
+
+
+
+
+
+
+
 }
 
