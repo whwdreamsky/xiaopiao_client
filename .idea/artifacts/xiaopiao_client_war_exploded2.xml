@@ -7,7 +7,6 @@
           <element id="module-output" name="xiaopiao_client" />
         </element>
         <element id="directory" name="lib">
-          <element id="library" level="project" name="ai.api:libai:1.4.6" />
           <element id="file-copy" path="$USER_HOME$/Downloads/gson-2.7.jar" />
           <element id="library" level="project" name="sqljdbc42" />
           <element id="library" level="project" name="com.google.code.gson:gson:2.7" />
@@ -19,6 +18,9 @@
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-log4j12:1.7.12" />
           <element id="dir-copy" path="$PROJECT_DIR$/src/main/lib" />
           <element id="dir-copy" path="$PROJECT_DIR$/src/main/webapp/WEB-INF/lib" />
+          <element id="library" level="project" name="org.analogweb:analogweb-commons-fileupload:0.9.11" />
+          <element id="library" level="project" name="commons-io:commons-io:2.5" />
+          <element id="library" level="project" name="ai.api:libai:1.4.8" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="xiaopiao_client/web/Web" />

@@ -108,10 +108,11 @@ public class QueryUnderstand {
   {
 
     try{
-      AIServiceContext aiServiceContext = AIServiceContextBuilder.buildFromSessionId(requestNLU.getUserid());
+      //AIServiceContext aiServiceContext = AIServiceContextBuilder.buildFromSessionId(requestNLU.getUserid());
       AIRequest request = new AIRequest(requestNLU.getQuery());
 
-      AIResponse response = dataService.request(request,aiServiceContext);
+      //AIResponse response = dataService.request(request,aiServiceContext);
+      AIResponse response = dataService.request(request);
 
       if (response.getStatus().getCode() == 200) {
 

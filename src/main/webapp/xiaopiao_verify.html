@@ -1861,10 +1861,10 @@ function voice_mousedown () {
     {
         recorder.start();
     }
-    timeout = setTimeout(function() {
-            document.getElementById('voice_btn_img').src="./static/img/voice.static.png";
-            //stopandupload();
-            }, 10000);
+timeout = setTimeout(function() {
+    document.getElementById('voice_btn_img').src="./static/img/voice.static.png";
+    //stopandupload();
+}, 10000);
 }
 
 function voice_mouseup() {
@@ -1877,20 +1877,20 @@ function stopandupload()
 {
     if(recorder){
             recorder.stop();
-            recorder.upload("/voice", function (state, msg) {
-            console.log(msg);
-            //msg=JSON.parse(JSON.stringify(e));
-            if (state=="ok") {
-                if (msg["errno"]==0)
-                {
-                    document.getElementById("bot_msg").value=msg["result"];
-                    send_to_bot('bot_msg', 'bot_msg_content');
-                }
-                else if(msg["errno"]==3301)
-                {
+            recorder.upload("/xiaopiaoWeb/Servlet/Voice?userid="+$("#userid").val(), function (state, msg) {
+                    console.log(msg);
+                    //msg=JSON.parse(JSON.stringify(e));
+                    if (state=="ok") {
+                        if (msg["errno"]==0)
+                        {
+                            document.getElementById("bot_msg").value=msg["result"];
+                            send_to_bot('bot_msg', 'bot_msg_content');
+                        }
+                        else if(msg["errno"]==3301)
+                        {
                     document.getElementById("voice_erro").innerHTML="语音识别错误";
                 }
-                console.log(msg["errno"]+":"+msg["err_msg"]);
+                console.log("voice_errno:"+msg["errno"]+" msg: "+msg["msg"]);
 
             }
             else {

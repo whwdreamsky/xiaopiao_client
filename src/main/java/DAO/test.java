@@ -2,6 +2,7 @@ package DAO;
 
 import Action.HistoryRecordAction;
 import DialogManagement.SessionObject;
+import NLU.QueryUnderstand;
 import TrainClient.HistorySession;
 import UtilTools.UtilTools;
 
@@ -20,6 +21,10 @@ public class test {
         historySession.setFinalresultlist("fwfqa");
         historySession.setUpdatetime(UtilTools.GetCurrentTimeStr());
         historySession.setUserid("whw");
+        //QueryUnderstand
+
+
+
         //int reuslt = historyRecordDAO.insertHistorySession(historySession);
         //System.out.println(reuslt);
 

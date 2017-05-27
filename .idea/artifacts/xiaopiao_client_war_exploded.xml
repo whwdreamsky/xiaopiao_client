@@ -17,7 +17,6 @@
         <element id="directory" name="lib" />
         <element id="dir-copy" path="$PROJECT_DIR$/lib" />
         <element id="dir-copy" path="$PROJECT_DIR$/src/main/webapp/WEB-INF/lib" />
-        <element id="library" level="project" name="ai.api:libai:1.4.6" />
         <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources" />
         <element id="library" level="project" name="com.google.code.gson:gson:2.7" />
         <element id="library" level="project" name="Maven: junit:junit:4.11" />

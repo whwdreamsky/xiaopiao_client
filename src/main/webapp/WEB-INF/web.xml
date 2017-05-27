@@ -21,6 +21,14 @@
         <servlet-name>ClearSession</servlet-name>
         <url-pattern>/Servlet/ClearSession</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>Voice</servlet-name>
+        <servlet-class>Servlet.VoiceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Voice</servlet-name>
+        <url-pattern>/Servlet/Voice</url-pattern>
+    </servlet-mapping>
 
 
 </web-app>

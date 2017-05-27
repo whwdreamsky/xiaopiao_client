@@ -195,6 +195,12 @@
         </patterns>
         <patterns type="satisfy">
             <require>
+                <param>advicetype</param>
+            </require>
+            <pattern>{advicetype} 从 {startpoint} 出发到 {arrivepoint} 实时车票如下 {ticketlist}</pattern>
+        </patterns>
+        <patterns type="satisfy">
+            <require>
                 <param>seattype</param>
             </require>
             <pattern>{startpoint} 到 {arrivepoint} 的 {traintype} ， {seattype} 有车票的是 {ticketlist}</pattern>
