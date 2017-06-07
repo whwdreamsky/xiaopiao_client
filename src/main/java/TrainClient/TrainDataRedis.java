@@ -70,7 +70,7 @@ public class TrainDataRedis {
     {
 
         if(redisUtil.getJedis()==null) return null;
-        String rediskey = "trainticket"+schemaConifg.getStartpoint().getValue()+schemaConifg.getArrivepoint().getValue()+schemaConifg.getStarttime().getDate();
+        String rediskey = "trainticket"+schemaConifg.getStartpoint().getValue()+schemaConifg.getArrivepoint().getValue()+schemaConifg.getStartdate().getValue();
         if(redisUtil.getValueByKey(rediskey)!=null)
         {
             return new Gson().fromJson(redisUtil.getValueByKey(rediskey),new TypeToken<ArrayList<TrainTicketRealTimeData>>(){}.getType());
@@ -79,7 +79,7 @@ public class TrainDataRedis {
     }
     public void setTrainTicket(List<TrainTicketRealTimeData> trainTicketRealTimeDataList)
     {
-        String rediskey = "trainticket"+schemaConifg.getStartpoint().getValue()+schemaConifg.getArrivepoint().getValue()+schemaConifg.getStarttime().getDate();
+        String rediskey = "trainticket"+schemaConifg.getStartpoint().getValue()+schemaConifg.getArrivepoint().getValue()+schemaConifg.getStartdate().getValue();
         redisUtil.saveStringKV(rediskey,new Gson().toJson(trainTicketRealTimeDataList));
     }
 

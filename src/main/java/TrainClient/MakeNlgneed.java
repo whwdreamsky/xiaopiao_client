@@ -1,12 +1,13 @@
 package TrainClient;
 
+import UtilTools.UtilTools;
 import webservice.Price;
 import webservice.TrainInfoData;
 import webservice.TrainTicketRealTimeData;
 import webservice.TrainToFromData;
 
-import java.util.List;
-import java.util.Map;
+import javax.rmi.CORBA.Util;
+import java.util.*;
 
 /**
  * Created by oliver on 2017/4/20.
@@ -39,21 +40,39 @@ public class MakeNlgneed {
         return nlgneed;
     }
 
+
     public Map makeTrainTicketNlgNeed(List<TrainTicketRealTimeData> trainTicketRealTimeDataList,Map nlgneed,SchemaConifg schemaConifg)
     {
+        //对火车数量过多进行处理，过多就找到适当的槽位选择澄清
+        if(trainTicketRealTimeDataList.size()>GlobalData.MAXTRAINNUM)
+        {
+            boolean boolresult = processOutOfMaxTrain(GlobalData.CARESLOT_TRAINTICKET,nlgneed);
+            if(boolresult) return nlgneed;
+        }
         String tickelist ="";
+        if(!nlgneed.containsKey("seattype"))
+        {
+            nlgneed.put("intent","Clarify");
+            nlgneed.put("type","clarify_seattype");
+            return nlgneed;
+        }
+        /* 这里对orderticket 有问题这里虽然只有一个火车但是无法写到session 里，下次读不出该火车名
+        if(trainTicketRealTimeDataList.size()==1)
+        {
+            nlgneed.put("trainname",trainTicketRealTimeDataList.get(0).getTrain_code());
+
+        }*/
+
         if(nlgneed.containsKey("trainname"))
         {
             nlgneed.put("start_time",trainTicketRealTimeDataList.get(0).getStart_time());
             nlgneed.put("arrive_time",trainTicketRealTimeDataList.get(0).getArrive_time());
-            if(nlgneed.containsKey("seattype"))
-            {
-                String temp = (String)trainTicketRealTimeDataList.get(0).getTicketmap().get(GlobalData.GetSeatType(schemaConifg.getSeattype().getValue()));
-                String ticketstate=temp;
+            String temp = (String)trainTicketRealTimeDataList.get(0).getTicketmap().get(GlobalData.GetSeatType(schemaConifg.getSeattype().getValue()));
+                String ticketstate="";
                 switch (temp)
                 {
                     case "--":
-                        ticketstate = "没有买的哈";
+                        ticketstate = "没有卖的哈";
                         break;
                     case "无":
                         ticketstate ="暂时卖完了哈";
@@ -65,21 +84,32 @@ public class MakeNlgneed {
                         ticketstate = "有"+ temp +"张";
                 }
                 nlgneed.put("ticketstate",ticketstate);
-            }
+
+
         }
-        for(int i=0;i< trainTicketRealTimeDataList.size();i++)
+        else
         {
-            String tempstr = (String)trainTicketRealTimeDataList.get(i).getTicketmap().get(GlobalData.GetSeatType(schemaConifg.getSeattype().getValue()));
-            if(!tempstr.equals("--")&&!tempstr.equals("无"))
+            int fitnum=0;
+            for(int i=0;i<trainTicketRealTimeDataList.size();i++)
             {
-                tickelist+=trainTicketRealTimeDataList.get(i).getTrain_code()+" "+trainTicketRealTimeDataList.get(i).getStart_time()+" 票数为"+tempstr+",";
+                String tempstr = (String)trainTicketRealTimeDataList.get(i).getTicketmap().get(GlobalData.GetSeatType(schemaConifg.getSeattype().getValue()));
+                if(!tempstr.equals("--")&&!tempstr.equals("无")&&!tempstr.equals("0"))
+                {
+                    tickelist+=trainTicketRealTimeDataList.get(i).getTrain_code()+" "+trainTicketRealTimeDataList.get(i).getStart_time()+" 票数为 "+tempstr+",";
+                    fitnum++;
+                }
             }
+            if(fitnum==0)
+            {
+                nlgneed.put("type","sellout");
+            }
+            else
+            {
+                nlgneed.put("ticketlist",tickelist);
+            }
+
         }
-        if(tickelist.equals(""))
-        {
-            tickelist = " 这个时段卖完啦，请选择其他时间";
-        }
-        nlgneed.put("ticketlist",tickelist);
+
 
         return nlgneed;
     }
@@ -294,6 +324,12 @@ public class MakeNlgneed {
         if(trainToFromDataList.size()==0) return nlgneed;
         int trainnum = trainToFromDataList.size();
         String trainlist = "";
+        //对火车数量过多进行处理，过多就找到适当的槽位选择澄清
+        if(trainToFromDataList.size()>GlobalData.MAXTRAINNUM)
+        {
+            boolean boolresult = processOutOfMaxTrain(GlobalData.CARESLOT_TRAINLIST,nlgneed);
+            if(boolresult) return nlgneed;
+        }
         for(int i=0;i<trainToFromDataList.size();i++)
         {
             trainlist+=trainToFromDataList.get(i).getTrain_no()+" "+trainToFromDataList.get(i).getStart_time()+"，";
@@ -353,5 +389,102 @@ public class MakeNlgneed {
 
 
         return nlgneed;
+    }
+
+    public Map makeOrderConfirmNlgNeed(Map nlgneed)
+    {
+        //{startdate} {startpoint} - {arrivepoint} {trainname} {seattype}，座次 {seatid}
+
+            boolean boolresult = processOutOfMaxTrain(GlobalData.CARESLOT_ORDERTICKET,nlgneed);
+            if(boolresult)
+            {
+                System.out.println("需要进行澄清");
+                return nlgneed;
+            }
+            System.out.println("trainname:"+schemaConifg.getTrainname().getValue());
+        nlgneed.put("arrivepoint",schemaConifg.getArrivepoint().getValue());
+        nlgneed.put("trainname",schemaConifg.getTrainname().getValue());
+        nlgneed.put("seattype",schemaConifg.getSeattype().getValue());
+        nlgneed.put("seatid","24-1A");
+        return nlgneed;
+
+    }
+
+    //这里处理当筛选的火车数量过多时，
+    private boolean processOutOfMaxTrain(String []careslot,Map nlgneed)
+    {
+        boolean bool = false;
+        List<String> needtoclarify =new ArrayList<>();
+
+        for(int i=0;i<careslot.length;i++)
+        {
+            System.out.println(careslot[i]);
+            switch (careslot[i])
+            {
+                case "user_seattype":
+                    if(schemaConifg.getSeattype().getValue().equals(""))
+                    {
+                        needtoclarify.add("user_seattype");
+                    }
+                    break;
+                case "user_starttime":
+                    if(schemaConifg.getStarttime().getTime().equals("")&&schemaConifg.getStarttime().getTimeend()==null)
+                    {
+                        needtoclarify.add("user_starttime");
+                    }
+                    break;
+
+                case "user_arrivetime":
+                    if(schemaConifg.getArrivetime().getTime().equals(""))
+                    {
+                        needtoclarify.add("user_arrivetime");
+                    }
+                    break;
+                case "user_traintype":
+                    if(schemaConifg.getTraintype().getValue().equals("H"))
+                    {
+                        needtoclarify.add("user_traintype");
+                    }
+                    break;
+                case "user_arrivepoint":
+                    if(schemaConifg.getArrivepoint().getValue().equals(""))
+                    {
+                        needtoclarify.add("user_arrivepoint");
+                    }
+                    break;
+            }
+        }
+        System.out.println("the size of needtoclarify is "+ needtoclarify.size());
+        if(needtoclarify.size()>0)
+        {
+            bool = true;
+            String randomslot = needtoclarify.get(UtilTools.GetRandomNum(1,needtoclarify.size())-1);
+            System.out.println("火车数量超出"+GlobalData.MAXTRAINNUM+"  对"+randomslot+"进行澄清");
+            switch (randomslot)
+            {
+                case "user_seattype":
+                    nlgneed.put("intent","Clarify");
+                    nlgneed.put("type","clarify_seattype");
+                    break;
+                case "user_starttime":
+                    nlgneed.put("intent","Clarify");
+                    nlgneed.put("type","clarify_starttime");
+                    break;
+
+                case "user_arrivetime":
+                    nlgneed.put("intent","Clarify");
+                    nlgneed.put("type","clarify_arrivetime");
+                    break;
+                case "user_traintype":
+                    nlgneed.put("intent","Clarify");
+                    nlgneed.put("type","clarify_traintype");
+                    break;
+                case "user_arrivepoint":
+                    nlgneed.put("intent","Clarify");
+                    nlgneed.put("type","clarify_arrivepoint");
+                    break;
+            }
+        }
+        return bool;
     }
 }

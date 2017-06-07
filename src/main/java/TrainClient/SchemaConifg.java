@@ -23,6 +23,8 @@ public class SchemaConifg {
     private String actionname;
     private String actiontype;
     private String userid ;
+    private SlotBean startdate;
+    private SlotBean arrivedate;
     private SlotBean startpoint;//API_LOC
     private SlotBean arrivepoint;
     private TimeBean starttime;
@@ -33,7 +35,7 @@ public class SchemaConifg {
     private SlotBean trainname;
     private SlotBean passcity;
     private SlotBean seattype;
-    private SlotBean advicetype ;
+    private SlotBean advicetype;
     
 
     public String getIntent() {
@@ -60,32 +62,44 @@ public class SchemaConifg {
         this.userid = userid;
     }
 
+    public SlotBean getStartdate() {
+        return startdate;
+    }
+
+    public void setStartdate(SlotBean startdate) {
+        this.startdate = startdate;
+    }
+
+    public SlotBean getArrivedate() {
+        return arrivedate;
+    }
+
+    public void setArrivedate(SlotBean arrivedate) {
+        this.arrivedate = arrivedate;
+    }
+
     public SchemaConifg()
     {
-        startpoint = new SlotBean(GlobalData.MAXOFFSET,"");//API_LOC
+        startpoint = new SlotBean(GlobalData.MAXOFFSET,API_LOC);//API_LOC
         arrivepoint= new SlotBean(GlobalData.MAXOFFSET,"");
         starttime= new TimeBean(GlobalData.MAXOFFSET,"","");
-        //startdate = new SlotBean("");
         arrivetime= new TimeBean(GlobalData.MAXOFFSET,"","");
-        //arrivedate = new SlotBean("");
-        traintype= new SlotBean(GlobalData.MAXOFFSET,"");//"H"
+        traintype= new SlotBean(GlobalData.MAXOFFSET,"H");//"H"
         trainname= new SlotBean(GlobalData.MAXOFFSET,"");
         passcity= new SlotBean(GlobalData.MAXOFFSET,"");
         seattype= new SlotBean(GlobalData.MAXOFFSET,"");
         advicetype = new SlotBean(GlobalData.MAXOFFSET,"");
+        startdate = new SlotBean(GlobalData.MAXOFFSET,"");
+        arrivedate = new SlotBean(GlobalData.MAXOFFSET,"");
     }
     public void setDefaultValue(RequestNLU requestNLU)
     {
         query= requestNLU.getQuery();
         userid = requestNLU.getUserid();
-        startpoint.setValue(API_LOC);
-        traintype.setValue("H");
-        traintype.setOffset(0);
         Date date = new Date();
         SimpleDateFormat sdfdate = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");
         String dateformat = sdfdate.format(date);
-        starttime.setDate(dateformat);
+        startdate.setValue(dateformat);
     }
 
     public void filledSchema(DMResultBean dmResultBean)
@@ -96,12 +110,14 @@ public class SchemaConifg {
         HashMap<String,JsonElement> slotlist= dmResultBean.getSlotlist();
         Map<String,SlotBean> slotneedfilled = new HashMap();
         //单值槽位
-        slotneedfilled.put("startpoint",this.getStartpoint());
+        slotneedfilled.put("startpoint",this.startpoint);
         slotneedfilled.put("arrivepoint",this.arrivepoint);
         slotneedfilled.put("passcity",this.passcity);
         slotneedfilled.put("seattype",this.seattype);
         slotneedfilled.put("traintype",this.traintype);
         slotneedfilled.put("advicetype",this.advicetype);
+        slotneedfilled.put("startdate",this.startdate);
+        slotneedfilled.put("arrivedate",this.arrivedate);
         Iterator iterator = slotneedfilled.entrySet().iterator();
         String key="";
         String api_key="";
@@ -161,14 +177,17 @@ public class SchemaConifg {
             String train_name = "";
                 if(jsonname.getAsJsonObject().has("traintype"))
                 {
-                    this.traintype.setValue(jsonname.getAsJsonObject().get("traintype").getAsString());
-                    train_name = this.traintype.getValue();
+                    //这里设置若指明火车名，则修改火车类型，否则不修改
+                    if(this.trainname.getOffset()==0)
+                    {
+                        this.traintype.setValue(jsonname.getAsJsonObject().get("traintype").getAsString());
+                    }
+                    train_name =jsonname.getAsJsonObject().get("traintype").getAsString();
                 }
-                if(jsonname.getAsJsonObject().has("traincode"))
-                {
-                    train_name=train_name+jsonname.getAsJsonObject().get("traincode").getAsString();
-                this.trainname.setValue(train_name);
-            }
+                if(jsonname.getAsJsonObject().has("traincode")) {
+                    train_name = train_name + jsonname.getAsJsonObject().get("traincode").getAsString();
+                    this.trainname.setValue(train_name);
+                }
         }
 
 
@@ -183,6 +202,23 @@ public class SchemaConifg {
         this.seattype = singleSlot.get("seattype");
         this.traintype = singleSlot.get("traintype");
         this.advicetype = singleSlot.get("advicetype");
+        this.startdate = judgeDate(singleSlot.get("startdate"));
+        this.arrivedate = judgeDate(singleSlot.get("arrivedate"));
+    }
+
+    //判断日期是否为正确格式
+    private SlotBean judgeDate(SlotBean slotBean)
+    {
+        String date=slotBean.getValue();
+        if(!date.equals(""))
+        {
+            if(date.split("-").length>2)
+            {
+               return slotBean;
+            }
+        }
+        slotBean.setValue("");
+        return slotBean;
     }
 
     //starttime,arrivetime
@@ -196,38 +232,11 @@ public class SchemaConifg {
         timeBean.setOffset(offset);
         if(jsonObject.has("time"))
         {
-            String timestr = jsonObject.get("time").getAsString();
-            String[] timearry = timestr.split(":");
-            if(timearry.length==3)
-            {
-                String timenew = timearry[0]+":"+timearry[1];
-                timeBean.setTime(timenew);
-            }
-
+            timeBean.setTime(jsonObject.get("time").getAsString());
         }
-        if(jsonObject.has("date"))
+        if(jsonObject.has("timeperiod"))
         {
-            String date = jsonObject.get("date").getAsString();
-            if(date.split("-").length>2)
-            {
-                timeBean.setDate(jsonObject.get("date").getAsString());
-            }
-        }
-        if(jsonObject.has("date-time"))
-        {
-            String datetimestr = jsonObject.get("date-time").getAsString();
-            String date_time[] = datetimestr.split("T",2);
-            if(date_time.length==2)
-            {
-                timeBean.setDate(date_time[0]);
-                String timestr = date_time[1].substring(0,date_time[1].length()-1);
-                String[] timearry = timestr.split(":");
-                if(timearry.length==3)
-                {
-                    String timenew = timearry[0]+":"+timearry[1];
-                    timeBean.setTime(timenew);
-                }
-            }
+            timeBean.setTimeperiod(jsonObject.get("timeperiod").getAsString());
         }
 
 

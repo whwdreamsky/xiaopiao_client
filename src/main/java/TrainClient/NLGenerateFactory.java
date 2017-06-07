@@ -56,12 +56,18 @@ public class NLGenerateFactory
 
     public void setNeed()
     {
-        nlgneed.put("intent",this.schemaConifg.getIntent());
+        //之前有设置意图为clarify 为防止这个被清晰掉
+        if(!nlgneed.containsKey("intent"))
+        {
+            nlgneed.put("intent",this.schemaConifg.getIntent());
+        }
+        if(!schemaConifg.getArrivedate().getValue().equals(""))nlgneed.put("arrivedate",schemaConifg.getArrivedate().getValue());
         nlgneed.put("traintype",GlobalData.GetTrainType(schemaConifg.getTraintype().getValue()));
         nlgneed.put("startpoint",schemaConifg.getStartpoint().getValue());
         nlgneed.put("arrivepoint",schemaConifg.getArrivepoint().getValue());
-        nlgneed.put("startdate",schemaConifg.getStarttime().getDate());
+        nlgneed.put("startdate",schemaConifg.getStartdate().getValue());
         nlgneed.put("userid",schemaConifg.getUserid());
+
     }
 
 

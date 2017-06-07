@@ -60,8 +60,10 @@ public class VoiceServlet extends BaseServlet {
             List fileitem = upload.parseRequest(request);
             if(fileitem!=null&&fileitem.size()!=0) {
                 FileItem item = (FileItem) fileitem.get(0);
+                System.out.println("filesize : "+ fileitem.size());
                 String contentType = item.getContentType();
                 result = filename + contentType;
+                System.out.println(result);
                 try {
                     item.write(new File(filepath + filename));
                     ASRVoice asrVoice = new ASRVoice();

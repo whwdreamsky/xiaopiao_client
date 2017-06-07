@@ -86,24 +86,22 @@ public class FilterTrainTicket
                 return filterByStarttime();
             case "user_arrivetime":
                 return filterByArriveTime();
-            case "user_advicetype":
-                if(schemaConifg.getAdvicetype().getOffset()==0)
-                {
-                    return filteredByAdviceType();
-                }
-                break;
             case "user_seattype":
                 return filteredBySeattype();
             case "user_trainname":
+                //这里trainname 作为比较限制的条件，有效区间只保留本轮或者上轮
                 if(schemaConifg.getTrainname().getOffset()==0)
                 {
                     return filteredByTrainname();
                 }
                 break;
+            case "user_advicetype":
+                return filteredByAdviceType();
+            default:
+                System.out.println("TICKET : No Catch!!");
+                return trainTicketRealTimeDataList;
         }
-        System.out.println("TICKET : No Catch!!");
         return trainTicketRealTimeDataList;
-
     }
 
     private List<TrainTicketRealTimeData> filteredByTrainname() {
@@ -185,46 +183,74 @@ public class FilterTrainTicket
 
     public List<TrainTicketRealTimeData> filterByStarttime()
     {
-        if(schemaConifg.getStarttime().getTime().equals(""))
-        {
-            return this.trainTicketRealTimeDataList;
-        }
+        TimeBean timeBean = schemaConifg.getStarttime();
+        if (timeBean.getTime().equals("")) return trainTicketRealTimeDataList;
         List<TrainTicketRealTimeData> newtrainlist = new ArrayList<TrainTicketRealTimeData>();
-        int startimevalue = Integer.parseInt(this.schemaConifg.getStarttime().getTime().replace(":",""));
-        int starttime2=0;
-        for (int i=0;i<trainTicketRealTimeDataList.size();i++)
-        {
-            starttime2 = Integer.parseInt(trainTicketRealTimeDataList.get(i).getStart_time().replace(":",""));
-            if(Math.abs(startimevalue-starttime2)<100)
+        for (int i = 0; i < trainTicketRealTimeDataList.size(); i++) {
+            if (judegeTrainTime(trainTicketRealTimeDataList.get(i).getStart_time(),timeBean.getTime(),timeBean.getTimeend()))
             {
                 newtrainlist.add(trainTicketRealTimeDataList.get(i));
             }
         }
-        if(newtrainlist.size()!=0||schemaConifg.getStarttime().getOffset()==0){nlgneed.put("starttime",schemaConifg.getStarttime().getTime());}
+        if(newtrainlist.size()>0||schemaConifg.getStarttime().getOffset()==0)
+        {
+            nlgneed.put("starttime",schemaConifg.getStarttime().getTime());
+            if(!schemaConifg.getStarttime().getTimeend().equals(""))nlgneed.put("starttimeend",schemaConifg.getStarttime().getTimeend());
+        }
         return newtrainlist;
+    }
 
+
+
+    private boolean judegeTrainTime(String timetrain,String time,String timeend)
+    {
+        int timetrainvalue  = Integer.parseInt(timetrain.replace(":", ""));
+        int timevalue  = Integer.parseInt(time.replace(":", ""));
+        boolean result = true;
+        if(timeend.equals("")||timeend==null)
+        {
+            //表示前后一小时
+            System.out.println("timeend 为空");
+            if (Math.abs(timevalue - timetrainvalue) > 100) return false;
+        }
+        else
+        {
+            int timeendvalue = Integer.parseInt(timeend.replace(":",""));
+            //消除零点时间问题
+            if(timeendvalue==0)timeendvalue=2400;
+            //避免出现timeperiod 异常的情况
+            if(timeendvalue<timevalue)
+            {
+                System.out.println("timeendvalue<timevalue 不合法");
+                if (Math.abs(timevalue - timetrainvalue) > 100) return false;
+            }
+            else
+            {
+                if(!(timetrainvalue >= timevalue && timetrainvalue <= timeendvalue + 100)) return false;
+            }
+
+        }
+
+        return result;
     }
 
     public List<TrainTicketRealTimeData> filterByArriveTime()
     {
-        if(schemaConifg.getArrivetime().getTime().equals(""))
-        {
-            return this.trainTicketRealTimeDataList;
-        }
+        TimeBean timeBean = schemaConifg.getArrivetime();
+        if (timeBean.getTime().equals("")) return trainTicketRealTimeDataList;
         List<TrainTicketRealTimeData> newtrainlist = new ArrayList<TrainTicketRealTimeData>();
-        int arrivetimevalue = Integer.parseInt(this.schemaConifg.getArrivetime().getTime().replace(":",""));
-        int arrivetime2=0;
-        for (int i=0;i<trainTicketRealTimeDataList.size();i++)
-        {
-            arrivetime2 = Integer.parseInt(trainTicketRealTimeDataList.get(i).getArrive_time().replace(":",""));
-            if(Math.abs(arrivetimevalue-arrivetime2)<100)
+        for (int i = 0; i < trainTicketRealTimeDataList.size(); i++) {
+            if (judegeTrainTime(trainTicketRealTimeDataList.get(i).getArrive_time(),timeBean.getTime(),timeBean.getTimeend()))
             {
                 newtrainlist.add(trainTicketRealTimeDataList.get(i));
             }
         }
-        if(newtrainlist.size()!=0||schemaConifg.getArrivetime().getOffset()==0){nlgneed.put("arrivetime",schemaConifg.getArrivetime().getTime());}
+        if(newtrainlist.size()>0||schemaConifg.getArrivetime().getOffset()==0)
+        {
+            nlgneed.put("arrivettime",schemaConifg.getArrivetime().getTime());
+            if(!schemaConifg.getArrivetime().getTimeend().equals(""))nlgneed.put("arrivetimeend",schemaConifg.getArrivetime().getTimeend());
+        }
         return newtrainlist;
-
     }
 
     public List<TrainTicketRealTimeData> getTrainTicketRealTimeDataList() {

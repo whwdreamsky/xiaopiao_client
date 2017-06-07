@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 /**
  * Created by oliver on 2017/5/16.
@@ -77,6 +78,14 @@ public class UtilTools {
         }
         return date;
     }
+    public static int GetRandomNum(int min,int max)
+    {
+
+        Random random = new Random();
+        int resultindex = random.nextInt(max)%(max-min+1)+min;
+        return resultindex;
+    }
+
 
 
 

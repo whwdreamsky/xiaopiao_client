@@ -109,6 +109,9 @@ public class DialogManagement
     {
         Iterator itoldslot = dmResultBean.getSlotlist().entrySet().iterator();
         HashMap<String,JsonElement> newslot = nluResult.getSlotlist();
+        //读取槽位的存活周期
+        Map slotmap = ReadProperties.getSlotClyclePropers();
+        /*
         String notextendedstr = ReadProperties.getDMPropers("notextended");
         String[] notextendedlist = null;
         if(!notextendedstr.equals(""))
@@ -116,20 +119,25 @@ public class DialogManagement
             System.out.println("notextendedlist : " + notextendedstr);
             notextendedlist = notextendedstr.split(",");
         }
+        */
         int offset=0;
         while(itoldslot.hasNext())
         {
             Map.Entry entry= (Map.Entry)itoldslot.next();
             String key = entry.getKey().toString();
             //根据配置去除不要被继承的槽位
-            if(notextendedlist!=null)
+            if(slotmap!=null)
             {
-                int i =0;
-                for(i =0;i<notextendedlist.length;i++)
+               //这里对超出生命周期的槽位进行过滤
+                if(slotmap.containsKey(key))
                 {
-                    if(key.equals(notextendedlist[i])) break;
+                    JsonObject slotcycle = (JsonObject) entry.getValue();
+                    int  offset_old = slotcycle.get("offset").getAsInt()+1;
+                    if(offset_old==Integer.parseInt((String)slotmap.get(key)))
+                    {
+                        continue;
+                    }
                 }
-                if(i!=notextendedlist.length) continue;
             }
             if(!newslot.containsKey(key))
             {
@@ -138,6 +146,8 @@ public class DialogManagement
                 jsonElement.getAsJsonObject().addProperty("offset",offset);
                 newslot.put(key,(JsonElement) entry.getValue());
             }
+            //对于新一轮包含的槽位这里直接做替换，这个后期可以完善
+            /*
             else
             {
                 JsonElement jsonElement = ((JsonElement) entry.getValue()).getAsJsonObject().get("value");
@@ -156,6 +166,7 @@ public class DialogManagement
                 }
 
             }
+            */
         }
         nluResult.setSlotlist(newslot);
     }

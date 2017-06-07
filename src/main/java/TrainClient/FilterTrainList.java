@@ -3,6 +3,7 @@ package TrainClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import webservice.Price;
+import webservice.TrainInfoData;
 import webservice.TrainToFromData;
 
 import java.util.*;
@@ -88,7 +89,7 @@ public class FilterTrainList {
 
     public List<TrainToFromData> filterBySlot(String slotname)
     {
-
+        List<TrainToFromData> newtrainlist = new ArrayList<TrainToFromData>();
            switch (slotname)
             {
                 case "user_traintype":
@@ -98,19 +99,11 @@ public class FilterTrainList {
                 case "user_arrivetime":
                     return filterByArriveTime();
                 case "user_advicetype":
-                    if(schemaConifg.getAdvicetype().getOffset()==0)
-                    {
                         return filteredByAdviceType();
-                    }
-                    break;
                 case "user_seattype":
                     return filteredBySeattype();
                 case "user_trainname":
-                    if(schemaConifg.getTrainname().getOffset()==0)
-                    {
                         return filteredByTrainname();
-                    }
-                    break;
             }
         System.out.println("No Catch!!");
         return getTrainToFromDatalist();
@@ -270,49 +263,95 @@ public class FilterTrainList {
 
     public List<TrainToFromData>  filterByStarttime()
     {
-        if(schemaConifg.getStarttime().getTime().equals(""))
-        {
-            return this.getTrainToFromDatalist();
-        }
-        List<TrainToFromData> oldtrainlist = getTrainToFromDatalist();
+        TimeBean timeBean = schemaConifg.getStarttime();
+        if (timeBean.getTime().equals("")) return trainToFromDatalist;
         List<TrainToFromData> newtrainlist = new ArrayList<TrainToFromData>();
-        int startimevalue = Integer.parseInt(this.schemaConifg.getStarttime().getTime().replace(":",""));
-        int starttime2=0;
-        for (int i=0;i<oldtrainlist.size();i++)
-        {
-            starttime2 = Integer.parseInt(oldtrainlist.get(i).getStart_time().replace(":",""));
-            if(Math.abs(startimevalue-starttime2)<100)
+        for (int i = 0; i < trainToFromDatalist.size(); i++) {
+            if (judegeTrainTime(trainToFromDatalist.get(i).getStart_time(),timeBean.getTime(),timeBean.getTimeend()))
             {
-                newtrainlist.add(oldtrainlist.get(i));
+                newtrainlist.add(trainToFromDatalist.get(i));
             }
         }
-        if(newtrainlist.size()!=0||schemaConifg.getStarttime().getOffset()==0){nlgneed.put("starttime",schemaConifg.getStarttime().getTime());}
+        if(newtrainlist.size()>0||schemaConifg.getStarttime().getOffset()==0)
+        {
+            nlgneed.put("starttime",schemaConifg.getStarttime().getTime());
+            if(!schemaConifg.getStarttime().getTimeend().equals(""))nlgneed.put("starttimeend",schemaConifg.getStarttime().getTimeend());
+        }
         return newtrainlist;
-
     }
-
     public List<TrainToFromData>  filterByArriveTime()
     {
-        if(schemaConifg.getArrivetime().getTime().equals(""))
-        {
-            return this.getTrainToFromDatalist();
-        }
-        List<TrainToFromData> oldtrainlist = getTrainToFromDatalist();
+        TimeBean timeBean = schemaConifg.getArrivetime();
+        if (timeBean.getTime().equals("")) return trainToFromDatalist;
         List<TrainToFromData> newtrainlist = new ArrayList<TrainToFromData>();
-        int startimevalue = Integer.parseInt(this.schemaConifg.getArrivetime().getTime().replace(":",""));
-        int starttime2=0;
-        for (int i=0;i<oldtrainlist.size();i++)
-        {
-            starttime2 = Integer.parseInt(oldtrainlist.get(i).getEnd_time().replace(":",""));
-            if(Math.abs(startimevalue-starttime2)<100)
+        for (int i = 0; i < trainToFromDatalist.size(); i++) {
+            if (judegeTrainTime(trainToFromDatalist.get(i).getEnd_time(),timeBean.getTime(),timeBean.getTimeend()))
             {
-                newtrainlist.add(oldtrainlist.get(i));
+                newtrainlist.add(trainToFromDatalist.get(i));
             }
         }
-        if(newtrainlist.size()!=0||schemaConifg.getArrivetime().getOffset()==0){nlgneed.put("arrivetime",schemaConifg.getArrivetime().getTime());}
+        if(newtrainlist.size()>0||schemaConifg.getArrivetime().getOffset()==0)
+        {
+            nlgneed.put("arrivettime",schemaConifg.getArrivetime().getTime());
+            if(!schemaConifg.getArrivetime().getTimeend().equals(""))nlgneed.put("arrivetimeend",schemaConifg.getArrivetime().getTimeend());
+        }
         return newtrainlist;
-
     }
+
+    public List<TrainToFromData> filterByTimeBean(TimeBean timeBean,String type) {
+        List<TrainToFromData> newtrainlist = new ArrayList<TrainToFromData>();
+        if (timeBean.getTime().equals("")) return trainToFromDatalist;
+        for (int i = 0; i < trainToFromDatalist.size(); i++) {
+            if (judegeTrainTime(getTimeByType(trainToFromDatalist.get(i),type),timeBean.getTime(),timeBean.getTimeend()))
+            {
+                newtrainlist.add(trainToFromDatalist.get(i));
+            }
+        }
+        return newtrainlist;
+    }
+
+    private boolean judegeTrainTime(String timetrain,String time,String timeend)
+    {
+        int timetrainvalue  = Integer.parseInt(timetrain.replace(":", ""));
+        int timevalue  = Integer.parseInt(time.replace(":", ""));
+        boolean result = true;
+        if(timeend.equals("")||timeend==null)
+        {
+            //表示前后一小时
+            if (Math.abs(timevalue - timetrainvalue) > 100) return false;
+        }
+        else
+        {
+            int timeendvalue = Integer.parseInt(timeend.replace(":",""));
+            //消除零点时间问题
+            if(timeendvalue==0)timeendvalue=2400;
+            //避免出现timeperiod 异常的情况
+            if(timeendvalue<timevalue)
+            {
+                if (Math.abs(timevalue - timetrainvalue) > 100) return false;
+            }
+            else
+            {
+                if(!(timetrainvalue >= timevalue && timetrainvalue <= timeendvalue + 100)) return false;
+            }
+
+        }
+
+        return result;
+    }
+
+    public String getTimeByType(TrainToFromData trainToFromData,String type)
+    {
+        if(type.equals("arrivetime"))
+        {
+            return  trainToFromData.getEnd_time();
+        }
+        else
+        {
+            return  trainToFromData.getStart_time();
+        }
+    }
+
 
     public SchemaConifg getSchemaConifg() {
         return schemaConifg;

@@ -24,10 +24,14 @@ public class GlobalData {
     public static final String ORDERINQUIRE = "ORDERINQUIRE";
     public static final String ORDERTICKET = "ORDERTICKET";
     public static final String UPDATESLOT = "UPDATESLOT";
-    public static final String CONFIRM = "CONFIRM";
+    public static final String CONFIRMTICKE = "CONFIRMTICKE";
     public static final String Fallback = "Fallback";
+    public static final int MAXTRAINNUM = 10;
 
 
+    public static final String []CARESLOT_TRAINLIST={"user_seattype","user_starttime","user_arrivetime","user_traintype"};
+    public static final String []CARESLOT_TRAINTICKET={"user_seattype","user_starttime","user_arrivetime","user_traintype"};
+    public static final String []CARESLOT_ORDERTICKET={"user_seattype","user_arrivepoint","user_trainname"};
     public static  String GetTrainType(String traintype)
     {
         Map<String,String> traintypemap = new HashMap();

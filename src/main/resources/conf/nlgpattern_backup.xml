@@ -4,33 +4,10 @@
         <patterns type="satisfy">
             <require>
                 <param>starttime</param>
-                <param>starttimeend</param>
-                <param>arrivetime</param>
-                <param>arrivetimeend</param>
-            </require>
-            <pattern>{starttime} ~ {starttimeend} 开往 {arrivepoint} ， {arrivetime} ~ {arrivetimeend} 到达的 {traintype} 是 {trainlist}</pattern>
-        </patterns>
-        <patterns type="satisfy">
-            <require>
-                <param>starttime</param>
                 <param>arrivetime</param>
                 <param>advicetype</param>
             </require>
             <pattern>{advicetype} {starttime} 点左右开往 {arrivepoint} ， {arrivetime} 点左右到达的 {traintype} 是 {trainlist}</pattern>
-        </patterns>
-        <patterns type="satisfy">
-            <require>
-                <param>starttime</param>
-                <param>starttimeend</param>
-            </require>
-            <pattern>{starttime} ~ {starttimeend} 之间开往 {arrivepoint} 的 {traintype} 是 {trainlist}</pattern>
-        </patterns>
-        <patterns type="satisfy">
-            <require>
-                <param>arrivetime</param>
-                <param>arrivetimeend</param>
-            </require>
-            <pattern>{arrivetime} ~ {arrivetimeend} 之间开往 {arrivepoint} 的 {traintype} 是 {trainlist}</pattern>
         </patterns>
         <patterns type="satisfy">
             <require>
@@ -195,64 +172,6 @@
         </patterns>
     </intentpattern>
 
-    <intentpattern intent="TRAINTICKET">
-        <patterns type="satisfy">
-            <require>
-                <param>seattype</param>
-                <param>trainname</param>
-            </require>
-            <pattern>{startdate} {trainname} {startpoint} 到 {arrivepoint} 的 {seattype} {ticketstate}</pattern>
-        </patterns>
-        <patterns type="satisfy">
-            <require>
-                <param>seattype</param>
-                <param>advicetype</param>
-            </require>
-            <pattern>{startdate} {advicetype} 从 {startpoint} 出发到 {arrivepoint} 实时车票如下 {ticketlist}</pattern>
-        </patterns>
-        <patterns type="satisfy">
-            <require>
-                <param>advicetype</param>
-            </require>
-            <pattern>{startdate} {advicetype} 从 {startpoint} 出发到 {arrivepoint} 实时车票如下 {ticketlist}</pattern>
-        </patterns>
-        <patterns type="satisfy">
-            <require>
-                <param>seattype</param>
-            </require>
-            <pattern>{startdate} {startpoint} 到 {arrivepoint} 的 火车 ， {seattype} 有车票的是 {ticketlist}</pattern>
-            <pattern>{startdate} {starttime} 左右从 {startpoint} 出发 到 {arrivepoint} 的火车，实时车票如下 {ticketlist}</pattern>
-            <pattern>{startdate} {arrivetime} 左右到达 {arrivepoint} 的火车，实时车票如下 {ticketlist}</pattern>
-        </patterns>
-        <patterns type="satisfy">
-            <pattern>{startdate} {starttime} 左右从 {startpoint} 出发 到 {arrivepoint} 的火车，实时车票如下 {ticketlist}</pattern>
-            <pattern>{startdate} {arrivetime} 左右到达 {arrivepoint} 的火车，实时车票如下 {ticketlist}</pattern>
-        </patterns>
-
-        <patterns type="sellout_trainname">
-            <require>trainname</require>
-            <pattern>{trainname} {startdate} 的车票已经全部卖完了</pattern>
-        </patterns>
-        <patterns type="sellout">
-            <pattern>{startdate} 这个时间段的 {seattype} 卖完了</pattern>
-            <pattern>抱歉{startdate} 这个时间段的 {seattype} 卖完了，请修改其他时间</pattern>
-        </patterns>
-        <patterns type="nodata">
-            <pattern>出发日期下没有直达的列车或是您的出发时间超出预售期了哦，建议修改日期哈</pattern>
-            <pattern>可能 {startdate} 没了呢，试试别的日期呗</pattern>
-        </patterns>
-        <patterns type="notmatch">
-            <pattern>查询到的实时车票数据没有能满足您的哈，可以尝试其他座次类型或者出发时间</pattern>
-        </patterns>
-        <patterns type="wrongstation">
-            <pattern>查询不到您输入的车站</pattern>
-        </patterns>
-        <patterns type="dataoverflow">
-            <pattern>满足您条件的火车有很多哦，可以通过明确时间，座次等获</pattern>
-        </patterns>
-
-    </intentpattern>
-
     <intentpattern intent="ORDERTICKET">
         <patterns type="satisfy">
             <require>
@@ -260,24 +179,42 @@
                 <param>trainname</param>
                 <param>startdate</param>
             </require>
-            <pattern>您确认预订 {startdate} {startpoint} - {arrivepoint} {trainname} {start_time} {seattype} ,对吗</pattern>
+            <pattern>{trainname} {startpoint} 到 {arrivepoint} 的 {seattype} {ticketstate}</pattern>
         </patterns>
-
         <patterns type="satisfy">
-        <require>
-            <param>seattype</param>
-            <param>startdate</param>
-        </require>
-        <pattern>请您从以下列车中选择一个， {startdate} {startpoint} 到 {arrivepoint} 的 火车 ， {seattype} 有车票的是 {ticketlist}</pattern>
+            <require>
+                <param>trainname</param>
+            </require>
+            <pattern>{trainname} {start_time} 从 {startpoint} 出发到 {arrive_time} 抵达 {arrivepoint} , {singleticketlist}</pattern>
+        </patterns>
+        <patterns type="satisfy">
+            <require>
+                <param>seattype</param>
+                <param>advicetype</param>
+            </require>
+            <pattern>{advicetype} 从 {startpoint} 出发到 {arrivepoint} 实时车票如下 {ticketlist}</pattern>
+        </patterns>
+        <patterns type="satisfy">
+            <require>
+                <param>advicetype</param>
+            </require>
+            <pattern>{advicetype} 从 {startpoint} 出发到 {arrivepoint} 实时车票如下 {ticketlist}</pattern>
+        </patterns>
+        <patterns type="satisfy">
+            <require>
+                <param>seattype</param>
+            </require>
+            <pattern>{startpoint} 到 {arrivepoint} 的 {traintype} ， {seattype} 有车票的是 {ticketlist}</pattern>
+            <pattern>{starttime} 左右从 {startpoint} 出发 到 {arrivepoint} 的火车，实时车票如下 {ticketlist}</pattern>
+            <pattern>{arrivetime} 左右到达 {arrivepoint} 的火车，实时车票如下 {ticketlist}</pattern>
+        </patterns>
+        <patterns type="satisfy">
+            <pattern>{starttime} 左右从 {startpoint} 出发 到 {arrivepoint} 的火车，实时车票如下 {ticketlist}</pattern>
+            <pattern>{arrivetime} 左右到达 {arrivepoint} 的火车，实时车票如下 {ticketlist}</pattern>
         </patterns>
 
-        <patterns type="sellout_trainname">
-            <require>trainname</require>
-            <pattern>{trainname} {startdate} 的车票已经全部卖完了，无法预订能否更改日期或班次</pattern>
-        </patterns>
         <patterns type="sellout">
-            <pattern>{startdate} 这个时间段的 {seattype} 卖完了</pattern>
-            <pattern>抱歉{startdate} 这个时间段的 {seattype} 卖完了，请修改其他时间</pattern>
+            <pattern>这个时间段的 {seattype} 卖完了</pattern>
         </patterns>
         <patterns type="nodata">
             <pattern>出发日期下没有直达的列车或是您的出发时间超出预售期了哦，建议修改日期哈</pattern>
@@ -289,26 +226,18 @@
         <patterns type="wrongstation">
             <pattern>查询不到您输入的车站</pattern>
         </patterns>
-        <patterns type="dataoverflow">
-            <pattern>满足您条件的火车有很多哦，可以通过明确时间，座次等获</pattern>
-        </patterns>
+
+
+
 
     </intentpattern>
 
 
-    <intentpattern intent="CONFIRMTICKE">
-        <patterns type="satisfy">
-            <pattern>成功给您预订了， {startdate} {startpoint} - {arrivepoint} {trainname} 的 {seattype} ，座次 {seatid} </pattern>
-        </patterns>
-    </intentpattern>
 
 
     <intentpattern intent="Clarify">
         <patterns type="clarify_trainname">
             <pattern>您要乘坐的火车名称是什么呢</pattern>
-        </patterns>
-        <patterns type="clarify_traintype">
-            <pattern>您想乘坐什么类型的火车（高铁，动车，快车，直达等）</pattern>
         </patterns>
         <patterns type="clarify_arrivepoint">
             <pattern>您准备去哪呢</pattern>
@@ -316,7 +245,6 @@
         </patterns>
         <patterns type="clarify_seattype">
             <pattern>您想做哪种座位（硬座，硬卧，二等座等）</pattern>
-            <pattern>请您确认下座位类型哈，例如高铁的一等座，二等座，快车的硬座，硬卧，软卧等</pattern>
         </patterns>
         <patterns type="clarify_starttime">
             <pattern>您准备什么时间出发呢</pattern>
@@ -339,5 +267,6 @@
             <pattern>哈喽， {userid} 你好哇</pattern>
         </patterns>
     </intentpattern>
+
 
 </nlgpatterns>

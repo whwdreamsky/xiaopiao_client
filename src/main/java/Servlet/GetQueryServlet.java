@@ -3,6 +3,7 @@ package Servlet;
 import Action.HistoryRecordAction;
 import TrainClient.TrainClient;
 import TrainClient.FinalResult;
+import UtilTools.UtilTools;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
@@ -38,11 +39,13 @@ public class GetQueryServlet extends HttpServlet{
     {
         String userid = request.getParameter("userid");
         String query = request.getParameter("query");
+        String reusltapiai = request.getParameter("reusltapiai");
         Map msg = new HashMap<String,JsonElement>();
         msg.put("errno","0");//0表示正常
         msg.put("msg","success");
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
+        System.out.println("resultapi:"+reusltapiai);
         if(userid==null||query==null)
         {
             msg.put("errno","1");//1表示输人参数为空
@@ -55,9 +58,10 @@ public class GetQueryServlet extends HttpServlet{
         }
         else
         {
+
             //随机输出一个回复
             TrainClient trainClient = new TrainClient();
-            trainClient.run(userid,query);
+            trainClient.run(userid,query,reusltapiai);
             FinalResult finalResult = new FinalResult();
             makeFinalResult(finalResult,trainClient);
             JsonElement reulstelement = new Gson().toJsonTree(finalResult);
@@ -66,6 +70,7 @@ public class GetQueryServlet extends HttpServlet{
             //将解析结果存入历史信息
             HistoryRecordAction historyRecordAction = new HistoryRecordAction(userid,"xiaopiao");
             historyRecordAction.insertSession(finalResult);
+
 
         }
         PrintWriter out = null;
@@ -91,9 +96,7 @@ public class GetQueryServlet extends HttpServlet{
         finalResult.setPatternlist(trainClient.getPatternlist());
         int max = result.size();
         int min =1;
-        Random random = new Random();
-        int resultindex = random.nextInt(max)%(max-min+1)+min;
-        finalResult.setResponse(result.get(resultindex-1));
+        finalResult.setResponse(result.get(UtilTools.GetRandomNum(1,result.size())-1));
 
     }
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

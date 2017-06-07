@@ -42,7 +42,10 @@ public class TrainClient {
       try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
           System.out.print(INPUT_PROMPT);
           while (null != (line = reader.readLine())) {
-              nluResult =queryUnderstand.nluProcess("xiaopiao","o20",line);
+              RequestNLU requestNLU = new RequestNLU();
+              requestNLU.setQuery(line);
+              requestNLU.setUserid("o20");
+              nluResult =queryUnderstand.nluProcess(requestNLU,"");
               System.out.println(new Gson().toJson(nluResult.getSlotlist()));
               dialogManagement = new DialogManagement();
               dialogManagement.dialogManageProcess(nluResult);
@@ -55,7 +58,7 @@ public class TrainClient {
       }
       System.out.println("See ya!");
   }
-  public void run(String userid,String query)
+  public void run(String userid,String query,String reusltapiai)
   {
       //NLU 模块
       RequestNLU requestNLU = new RequestNLU();
@@ -63,8 +66,8 @@ public class TrainClient {
       requestNLU.setUserid(userid);
       queryUnderstand = new QueryUnderstand();
       NLUResult nluResult=null;
-      nluResult = queryUnderstand.nluProcess(requestNLU);
-      System.out.println(new Gson().toJson(nluResult.getSlotlist()));
+      nluResult = queryUnderstand.nluProcess(requestNLU,reusltapiai);
+      System.out.println(new Gson().toJson(nluResult));
 
       // DM 动作管理模块
       dialogManagement = new DialogManagement();
@@ -78,6 +81,7 @@ public class TrainClient {
       schemaConifg.filledSchema(dmResultBean);
       printparams(schemaConifg);
       nlgneed = new HashMap<String,String>();
+
       trainLogicMatch(schemaConifg);
 
       //NLG 自然语言生成
@@ -85,10 +89,6 @@ public class TrainClient {
       nlGenerateFactory.nlgProcess();
       result = nlGenerateFactory.getNlgresult();
       patternlist= nlGenerateFactory.getPatternlist();
-      for(int i=0;i<result.size();i++)
-      {
-          System.out.println("result"+result.get(i));
-      }
 
   }
 
@@ -135,6 +135,7 @@ public class TrainClient {
   {
       TrainTicketInquire trainTicketInquire = new TrainTicketInquire();
       MakeNlgneed makeNlgneed = new MakeNlgneed(schemaConifg);
+      nlgneed.put("type","satisfy");
       TrainDataRedis getTrainDataRedis = new TrainDataRedis(schemaConifg);
       if(schemaConifg.getIntent().equals(GlobalData.TRAINLIST)||schemaConifg.getIntent().equals(GlobalData.TRAINPRICE)||schemaConifg.getIntent().equals(GlobalData.TRAINTIMECOST))
       {
@@ -193,40 +194,34 @@ public class TrainClient {
           }
 
       }
-      else if(schemaConifg.getIntent().equals("TRAINTICKET"))
+      else if(schemaConifg.getIntent().equals(GlobalData.TRAINTICKET)||schemaConifg.getIntent().equals(GlobalData.ORDERTICKET))
       {
           List <TrainTicketRealTimeData> trainTicketRealTimeDataList = getTrainDataRedis.getTrainTicketData();
           if(trainTicketRealTimeDataList==null)
           {
-              if(GlobalData.traincode==null)
-              {
-                  GlobalData.LOADTRAINCODE();
-                  System.err.println("no station data!!");
-                  System.err.println("station_map size: "+GlobalData.traincode.size());
-              }
-              else
-              {
-                  System.err.println("have station data!!");
-                  System.err.println("station_map size: "+GlobalData.traincode.size());
-              }
+              if(GlobalData.traincode==null) GlobalData.LOADTRAINCODE();
               System.err.println("a1");
               String startcode = GlobalData.traincode.get(schemaConifg.getStartpoint().getValue());
               String arrivecode = GlobalData.traincode.get(schemaConifg.getArrivepoint().getValue());
               String startcode_utf8 = GlobalData.traincode.get(UtilTools.tranStrToUtf8(schemaConifg.getStartpoint().getValue()));
               String arrivecode_utf8 = GlobalData.traincode.get(UtilTools.tranStrToUtf8(schemaConifg.getArrivepoint().getValue()));
 
+              System.out.println("startcode:"+startcode);
               System.out.println("arrivecode:"+arrivecode);
+              System.out.println("startcode_utf8:"+startcode_utf8);
+              System.out.println("arrivecode_utf8:"+arrivecode_utf8);
 
+              //做了一个编码的兼容
               if(startcode!=null&&arrivecode!=null)
               {
                   System.out.println("startcode:"+startcode);
                   System.out.println("arrivecode:"+arrivecode);
-                  trainTicketRealTimeDataList = trainTicketInquire.getTrainTicketRealTime(startcode,arrivecode,schemaConifg.getStarttime().getDate(),"");
+                  trainTicketRealTimeDataList = trainTicketInquire.getTrainTicketRealTime(startcode,arrivecode,schemaConifg.getStartdate().getValue(),"");
                   if(trainTicketRealTimeDataList!=null) getTrainDataRedis.setTrainTicket(trainTicketRealTimeDataList);
               }
               else if(startcode_utf8!=null&&arrivecode_utf8!=null)
               {
-                  trainTicketRealTimeDataList = trainTicketInquire.getTrainTicketRealTime(startcode_utf8,arrivecode_utf8,schemaConifg.getStarttime().getDate(),"");
+                  trainTicketRealTimeDataList = trainTicketInquire.getTrainTicketRealTime(startcode_utf8,arrivecode_utf8,schemaConifg.getStartdate().getValue(),"");
                   if(trainTicketRealTimeDataList!=null) getTrainDataRedis.setTrainTicket(trainTicketRealTimeDataList);
               }
               else
@@ -253,22 +248,23 @@ public class TrainClient {
               else
               {
                   nlgneed = makeNlgneed.makeTrainTicketNlgNeed(trainTicketRealTimeDataList,nlgneed,schemaConifg);
+
                   System.err.println("a7");
               }
               //nlgneed =makeNlgneed.makeByIntentWithTrainInfo(nlgneed,trainTicketRealTimeDataList);
 
           }
+
           else
           {
               nlgneed.put("type","nodata");
-
           }
 
 
       }
-      else
+      else if(schemaConifg.getIntent().equals(GlobalData.CONFIRMTICKE))
       {
-          nlgneed.put("type","satisfy");
+          nlgneed = makeNlgneed.makeOrderConfirmNlgNeed(nlgneed);
       }
       getTrainDataRedis.getRedisUtil().closeReis();
   }
@@ -277,18 +273,18 @@ public class TrainClient {
     public static void printparams(SchemaConifg schemaConifg) {
         //System.out.println("intent:"+nluResult.getIntent());
         //System.out.println("userid："+nluResult.getUserid());
-        System.err.println("1:"+schemaConifg.getIntent());
-        System.err.println("2:"+schemaConifg.getActionname());
-        System.err.println("3:"+schemaConifg.getPasscity().getValue()+schemaConifg.getPasscity().getOffset());
-        System.err.println("4:"+schemaConifg.getSeattype().getValue()+schemaConifg.getSeattype().getOffset());
-        System.err.println("5:"+schemaConifg.getStartpoint().getValue()+schemaConifg.getStartpoint().getOffset());
-        System.err.println("6:"+schemaConifg.getArrivepoint().getValue()+schemaConifg.getArrivepoint().getOffset());
-        System.err.println("7:"+schemaConifg.getTrainname().getValue()+schemaConifg.getTrainname().getOffset());
-        System.err.println("8:"+schemaConifg.getStarttime().getTime()+schemaConifg.getStarttime().getOffset());
-        System.err.println("9:"+schemaConifg.getStarttime().getDate()+schemaConifg.getStarttime().getOffset());
-        System.err.println("10:"+schemaConifg.getTraintype().getValue()+schemaConifg.getTraintype().getOffset());
-        System.err.println("1:"+schemaConifg.getArrivetime().getDate()+schemaConifg.getArrivetime().getOffset());
-        System.err.println("12:"+schemaConifg.getArrivetime().getTime()+schemaConifg.getArrivetime().getOffset());
+        System.err.println("1(intent):"+schemaConifg.getIntent());
+        System.err.println("2(actioname):"+schemaConifg.getActionname());
+        System.err.println("3(passcity):"+schemaConifg.getPasscity().getValue()+schemaConifg.getPasscity().getOffset());
+        System.err.println("4(seattype):"+schemaConifg.getSeattype().getValue()+schemaConifg.getSeattype().getOffset());
+        System.err.println("5(startpoint):"+schemaConifg.getStartpoint().getValue()+schemaConifg.getStartpoint().getOffset());
+        System.err.println("6(arrivepoint):"+schemaConifg.getArrivepoint().getValue()+schemaConifg.getArrivepoint().getOffset());
+        System.err.println("7(trainname):"+schemaConifg.getTrainname().getValue()+schemaConifg.getTrainname().getOffset());
+        System.err.println("8(starttime):"+schemaConifg.getStarttime().getTime()+schemaConifg.getStarttime().getOffset());
+        System.err.println("9(startdate):"+schemaConifg.getStartdate().getValue()+schemaConifg.getStartdate().getOffset());
+        System.err.println("10(traintype):"+schemaConifg.getTraintype().getValue()+schemaConifg.getTraintype().getOffset());
+        System.err.println("11(arrivetime):"+schemaConifg.getArrivetime().getTime()+schemaConifg.getArrivetime().getOffset());
+        System.err.println("12(arrivedate):"+schemaConifg.getArrivedate().getValue()+schemaConifg.getArrivedate().getOffset());
 
     }
 

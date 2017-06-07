@@ -37,8 +37,7 @@
 
 .en-markup-crop-options div div:first-of-type {
     margin-left: 0px !important;
-}
-</style></head>
+}</style></head>
 
 <body class="">
     
@@ -53,6 +52,7 @@
 <div id="bot_chat_show" style="">
 
     <input type="hidden" id="userid" value="oliver">
+    <input type="hidden" id="reusltapiai" value="">
     <div id="bot_chat" class="container" style="margin-left: 30%;position: fixed; min-width: 37.5%;width: 37.5%;margin-bottom: 100px;z-index: 99999;margin-top: 10px;height: 80%;min-height: 500px;">
         <div class="row chat-window col-xs-5 col-md-12" id="chat_window_1" style="margin-left:10px;height: 480px;">
             <div class="col-xs-12 col-md-12">
@@ -106,7 +106,7 @@
                             <textarea rows="3" id="bot_msg" type="text" class="form-control input-sm chat_input" placeholder="请在这里填写对话内容"></textarea><span class="input-group-btn">
                             <button type="button" id="btn-chat-voice"  onmousedown ="voice_mousedown()" onmouseup="voice_mouseup()" class="btn btn-default btn-sm" style="z-index: 999;border: 0;margin-left: -40px;background: transparent;width: 10%;margin-top: 10px;">
                             <img src="./static/img/voice.static.png" id="voice_btn_img" width="30" height="30"></button>
-                            <button class="btn btn-primary btn-sm btn-block" id="btn-chat-sent" style="float:right" onclick="send_to_bot(&#39;bot_msg&#39;, &#39;bot_msg_content&#39;)">发送</button>
+                            <button class="btn btn-primary btn-sm btn-block" id="btn-chat-sent" style="float:right" onclick="send_to_apiai()">发送</button>
                             <button class="btn btn-default btn-sm" id="btn-chat" style="float:right" onclick="clear_bot_session(&#39;bot_msg_content&#39;)">清空数据</button>
                             </span>
 
@@ -757,54 +757,19 @@ function show_json_info(json_timestamp)
     $("#json_show").attr("style", "display");
 }
 
-function send_to_bot(msg_id, content_id)
+function send_to_bot(msg_id, msg,reusltapiai)
 {
-    var bot_fail_say = "我不知道应该怎么答复你";
-    var hr_line = '<br><hr style="margin-bottom: -8px;margin-top: 9px;border-top: 2px solid #bfb7b7;"><br>' ;
-    var msg = $('#'+msg_id).val();
-    msg = msg.replace(/(\r\n|\n|\r)/gm, '');
-    if(msg=="")return;
-    $('#'+msg_id).val("");
-    var content = $('#'+content_id);
-
-    var bot_session = getCookie("bot_session");
-    console.log("in send_to_bot: send bot session:");
-    console.log(bot_session);
-    if (bot_session == null)
-    {
-        bot_session = "";
-    }
-
-    var client_session = deal_client_session();
     var url = '/xiaopiaoWeb/Servlet/GetQuery';
-    //var url = '/appservice/botverifytest?appid=' + 728;
-    var username = $("#user_name_id").val();
-    var timestamp = $("#timestamp_id").val();
-    if (timestamp == "")timestamp = Date.parse(new Date());
-    var bot_user_id = username + "_" + timestamp + "_" + RandomNumBoth();
-    var log_id = username+"_log_" + Date.parse(new Date()) + "_" + RandomNumBoth();
-    var send_json_timestamp = "json_" + Date.parse(new Date()) + "_" + RandomNumBoth();
-    var send_json = {
-        "appname":"xiaopiao",
-        "sample_name":"ibf_qucloud_server",              //具体bot APP 的app_id
-        "user_id":$("#userid").val(),                     // 用户ID
-        "query":msg,
-        //"user_info":{}, //用户当前的个性化信息
-        "version":"1.0",                           //string 预留字段
-    }
-    console.log("send json:");
-    console.log(send_json);
-    make_json_content(send_json_timestamp, send_json);
-    var sent_msg = make_send(msg, send_json_timestamp);
-    make_dlg(sent_msg);
-
+    var userid = $("#userid").val();
     $.ajax({
             url: url,
             type: 'post',//提交的方式
             dataType:'json',
             data: {
-                "userid": $("#userid").val(),
+                "userid": userid,
                 "query": msg,
+                "reusltapiai": reusltapiai
+
             },
             success: function(msg) {
                 //这是成功返回的数据，写自己的逻辑
@@ -829,6 +794,8 @@ function send_to_bot(msg_id, content_id)
             error: function(msg)
             {
                 make_dlg(make_receive("请求服务失败"),"none");
+                console.log(msg["errno"]);
+                console.log(msg["msg"]);
             }
         });
     //make_dlg(make_receive(msg),"none");
@@ -1903,6 +1870,65 @@ function stopandupload()
 
     }
 }
+
+function  send_to_apiai() {
+    //为空则不做处理
+    if(makereceive()==false) return;
+    var accessToken = "85e15ecbcd2243db9e931fde7251a7a0";
+    var baseUrl = "https://api.api.ai/v1/";
+    var resultapi = "";
+    var userid= $("#userid").val();
+    var query=$("#bot_msg").val();
+    $('#bot_msg').val("");
+    query = query.replace(/(\r\n|\n|\r)/gm, '');
+    $.ajax({
+        type: "POST",
+        url: baseUrl + "query?v=20150910",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + accessToken
+        },
+        data: JSON.stringify({ query: query, lang: "zh-cn", sessionId: userid }),
+        success: function(data) {
+            resultapi = JSON.stringify(data);
+            console.log("访问api.ai 正常");
+            console.log(resultapi);
+            document.getElementById("reusltapiai").value=resultapi;
+            send_to_bot('bot_msg', query,resultapi);
+
+        },
+        error: function() {
+            console.log("Internal Server Error");
+            send_to_bot('bot_msg', query,"");
+        }
+    });
+
+}
+
+function  makereceive() {
+    var msg = $('#bot_msg').val();
+    msg = msg.replace(/(\r\n|\n|\r)/gm, '');
+    if(msg=="")return false;
+    var send_json_timestamp = "json_" + Date.parse(new Date()) + "_" + RandomNumBoth();
+    var send_json = {
+        "appname":"xiaopiao",
+        "sample_name":"ibf_qucloud_server",              //具体bot APP 的app_id
+        "user_id":$("#userid").val(),                     // 用户ID
+        "query":msg,
+        //"user_info":{}, //用户当前的个性化信息
+        "version":"1.0",                           //string 预留字段
+    }
+    console.log("send json:");
+    console.log(send_json);
+    make_json_content(send_json_timestamp, send_json);
+    var sent_msg = make_send(msg, send_json_timestamp);
+    make_dlg(sent_msg);
+    return true;
+}
+
+
+
 </script>
 </div>
 <!-- Bootstrap core JavaScript

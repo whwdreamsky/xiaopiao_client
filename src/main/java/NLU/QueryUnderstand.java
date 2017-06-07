@@ -7,6 +7,10 @@ import ai.api.AIServiceContextBuilder;
 import ai.api.model.AIRequest;
 import ai.api.model.AIResponse;
 import ai.api.model.Result;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 public class QueryUnderstand {
 
@@ -59,8 +63,26 @@ public class QueryUnderstand {
     */
     return nluresult;
   }
+  //自定义的response 数据结构
+  public NLUResult transferToNLUResult_MyResponse(AIAPIResponse response,String userid,String appname)
+  {
+    NLUResult nluresult = new NLUResult();
+    NLU.Result result = response.getResult();
+    nluresult.setStatuscode(response.getStatus().getCode());
+    nluresult.setStatustype(response.getStatus().getErrorType());
+    nluresult.setTimestamp(response.getTimestamp());
+    nluresult.setSessionid(response.getSessionId());
+    nluresult.setUserid(userid);
+    nluresult.setIntent(result.getMetadata().getIntentName());
+    nluresult.setQuery(result.getResolvedQuery());
+    nluresult.setScore(result.getScore());
+    nluresult.setSlotlist(result.getParameters());
+    nluresult.setAppname(appname);
 
-  // query 预处理, 这里简单解决火车名问题
+    return nluresult;
+  }
+
+  // query 预处理, 这里简单解决火车名问题,这个是api.ai 对中文识别有问题
   public String preprocess(String query)
   {
     char[] traintype = {'t','T','d','D','g','G','z','Z','y','Y','k','K','p','P','h','H'};
@@ -71,7 +93,7 @@ public class QueryUnderstand {
       {
         if(query.charAt(i)==traintype[j])
         {
-          newstr=query.substring(0,i)+' '+query.substring(i,query.length());
+          newstr=query.substring(0,i+1)+' '+query.substring(i+1,query.length());
           return newstr;
         }
       }
@@ -81,15 +103,17 @@ public class QueryUnderstand {
 
   }
 
-
+/*
   public NLUResult nluProcess (String appname,String userid,String query)
   {
 
     try{
       query = preprocess(query);
+      System.setProperty("https.protocols", "TLSv1.1");
       AIServiceContext aiServiceContext = AIServiceContextBuilder.buildFromSessionId(userid);
       AIRequest request = new AIRequest(query);
-      AIResponse response = dataService.request(request,aiServiceContext);
+      AIAPIResponse response = dataService.request(request,aiServiceContext);
+      System.out.println("nluresult : from api.ai"+new Gson().toJson(response));
 
       if (response.getStatus().getCode() == 200) {
 
@@ -104,15 +128,37 @@ public class QueryUnderstand {
     return null;
 
   }
-  public NLUResult nluProcess (RequestNLU requestNLU)
+  */
+  public NLUResult nluProcess (RequestNLU requestNLU,String reusltapiai)
   {
 
-    try{
-      //AIServiceContext aiServiceContext = AIServiceContextBuilder.buildFromSessionId(requestNLU.getUserid());
-      AIRequest request = new AIRequest(requestNLU.getQuery());
+    if(reusltapiai.equals("")||reusltapiai==null)
+    {
+      return  nluProcessBySDK(requestNLU);
+    }
+    //通过js 的方式访问
+    else {
 
-      //AIResponse response = dataService.request(request,aiServiceContext);
+      NLUResult nluResult = nluProcessByJs(requestNLU,reusltapiai);
+      if(nluResult==null) {
+        return nluProcessBySDK(requestNLU);
+      }
+      else return nluResult;
+
+    }
+
+  }
+  public NLUResult nluProcessBySDK(RequestNLU requestNLU)
+  {
+    System.out.println("访问api的方式是java SDK");
+    try{
+      System.setProperty("https.protocols", "TLSv1.1");
+      //AIServiceContext aiServiceContext = AIServiceContextBuilder.buildFromSessionId(requestNLU.getUserid());
+      AIRequest request = new AIRequest(preprocess(requestNLU.getQuery()));
+
+      //AIAPIResponse response = dataService.request(request,aiServiceContext);
       AIResponse response = dataService.request(request);
+      System.out.println("nluresult : from api.ai"+new Gson().toJson(response));
 
       if (response.getStatus().getCode() == 200) {
 
@@ -125,7 +171,27 @@ public class QueryUnderstand {
       ex.printStackTrace();
     }
     return null;
+  }
 
+  public NLUResult nluProcessByJs(RequestNLU requestNLU,String reusltapiai)
+  {
+    System.out.println("访问api的方式是js");
+    AIAPIResponse aiResponse;
+    try {
+       aiResponse =  new Gson().fromJson(reusltapiai, new TypeToken<AIAPIResponse>(){}.getType());
+      return  transferToNLUResult_MyResponse(aiResponse,requestNLU.getUserid(),requestNLU.getAppname());
+
+    }
+    catch (JsonSyntaxException e)
+    {
+      System.out.println("JsonSyntaxException"+e.getMessage());
+      e.printStackTrace();
+    }
+    catch (JsonParseException e) {
+      System.out.println("JsonParseException"+e.getMessage());
+      e.printStackTrace();
+    }
+    return null;
   }
 
 }

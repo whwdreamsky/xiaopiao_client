@@ -105,15 +105,6 @@
 
 	<trigger type="satisfy">
 		<intent>TRAINTICKET</intent>
-		<actionname>satisfy_trainticketwithname</actionname>
-		<require>
-			<slot>user_arrivepoint</slot>
-			<slot>user_trainname</slot>
-		</require>
-	</trigger>
-
-	<trigger type="satisfy">
-		<intent>TRAINTICKET</intent>
 		<actionname>satisfy_trainticket</actionname>
 		<require>
 			<slot>user_arrivepoint</slot>
@@ -241,10 +232,18 @@
 
 	<trigger type="satisfy">
 		<intent>ORDERTICKET</intent>
-		<actionname>satisfy_orderticket</actionname>
+		<actionname>satisfy_orderticket_withname</actionname>
 		<require>
 			<slot>user_starttime</slot>
 			<slot>user_trainname</slot>
+			<slot>user_seattype</slot>
+		</require>
+	</trigger>
+	<trigger type="satisfy">
+		<intent>ORDERTICKET</intent>
+		<actionname>satisfy_orderticket</actionname>
+		<require>
+			<slot>user_starttime</slot>
 			<slot>user_seattype</slot>
 		</require>
 	</trigger>
@@ -258,18 +257,19 @@
 	</trigger>
 	<trigger type="clarify">
 		<intent>ORDERTICKET</intent>
-		<actionname>clarify_trainname</actionname>
-		<notfilled>
-			<slot>user_trainname</slot>
-		</notfilled>
-	</trigger>
-	<trigger type="clarify">
-		<intent>ORDERTICKET</intent>
 		<actionname>clarify_seattype</actionname>
 		<notfilled>
 			<slot>user_seattype</slot>
 		</notfilled>
 	</trigger>
+	<trigger type="clarify">
+		<intent>ORDERTICKET</intent>
+		<actionname>clarify_trainname</actionname>
+		<notfilled>
+			<slot>user_trainname</slot>
+		</notfilled>
+	</trigger>
+
 	<trigger type="satisfy">
 		<intent>ORDERINQUIRE</intent>
 		<actionname>satisfy_inquireticketwithtime</actionname>
@@ -310,16 +310,16 @@
 		<intent>CONFIRMTICKE</intent>
 		<actionname>satisfy_confirm</actionname>
 		<require>
-			<slot>user_starttime</slot>
+			<slot>user_seattype</slot>
 			<slot>user_trainname</slot>
 		</require>
 	</trigger>
 
 	<trigger type="clarify">
 		<intent>CONFIRMTICKE</intent>
-		<actionname>clarify_starttime</actionname>
+		<actionname>clarify_seattype</actionname>
 		<notfilled>
-			<slot>user_starttime</slot>
+			<slot>user_seattype</slot>
 		</notfilled>
 	</trigger>
 	<trigger type="clarify">

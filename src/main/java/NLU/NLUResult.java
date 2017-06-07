@@ -64,6 +64,7 @@ public class NLUResult {
         return slotlist;
     }
 
+    //过滤掉空槽位
     public void setSlotlist(HashMap<String, JsonElement> slotlist) {
         Iterator iterator = slotlist.entrySet().iterator();
         HashMap<String,JsonElement> slotlist_sloved = new HashMap<String,JsonElement>();
