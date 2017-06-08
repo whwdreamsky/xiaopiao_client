@@ -79,6 +79,7 @@ public class VoiceServlet extends BaseServlet {
                     msg.put("msg",resultVoice.getErr_msg());
 
                 } catch (Exception e) {
+                    e.printStackTrace();
 
                 }
             }

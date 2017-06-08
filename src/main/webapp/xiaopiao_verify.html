@@ -1851,7 +1851,7 @@ function stopandupload()
                         if (msg["errno"]==0)
                         {
                             document.getElementById("bot_msg").value=msg["result"];
-                            send_to_bot('bot_msg', 'bot_msg_content');
+                            send_to_apiai();
                         }
                         else if(msg["errno"]==3301)
                         {

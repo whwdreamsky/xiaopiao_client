@@ -90,16 +90,12 @@ public class FilterTrainTicket
                 return filteredBySeattype();
             case "user_trainname":
                 //这里trainname 作为比较限制的条件，有效区间只保留本轮或者上轮
-                if(schemaConifg.getTrainname().getOffset()==0)
-                {
                     return filteredByTrainname();
-                }
-                break;
             case "user_advicetype":
                 return filteredByAdviceType();
             default:
                 System.out.println("TICKET : No Catch!!");
-                return trainTicketRealTimeDataList;
+
         }
         return trainTicketRealTimeDataList;
     }

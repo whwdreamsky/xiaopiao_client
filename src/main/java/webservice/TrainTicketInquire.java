@@ -34,7 +34,8 @@ public class TrainTicketInquire {
         public static final int DEF_READ_TIMEOUT = 30000;
         public static String userAgent =  "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36";
         //配置您申请的KEY
-        public  String APPKEY ="0f3a0df8365e55833efb598ec31cc00c";
+        //public  String APPKEY ="0f3a0df8365e55833efb598ec31cc00c";
+        public  String APPKEY ="062320eb5aa1760e2c6fb663b69a2783";
         private String result="";
         private String errocode="0";
         private String erromeassage="";
@@ -110,7 +111,8 @@ public class TrainTicketInquire {
 
         //5.12306实时余票查询
         public List<TrainTicketRealTimeData> getTrainTicketRealTime(String startpoint,String arrivepoint,String date,String traintype){
-            APPKEY = "937c2443343d85d87fbc95a6eb5c6c2d";
+            //APPKEY = "937c2443343d85d87fbc95a6eb5c6c2d";
+            APPKEY = "9c0678fe099e16ab189213737c80e020";
             //String url ="http://apis.juhe.cn/train/yp";//请求接口地址
             String url ="http://op.juhe.cn/trainTickets/ticketsAvailable";//请求接口地址
             /*

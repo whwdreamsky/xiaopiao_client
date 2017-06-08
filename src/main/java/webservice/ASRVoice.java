@@ -128,11 +128,12 @@ public class ASRVoice {
             response.append(line);
         }
         rd.close();
+        System.out.println("response:"+response.toString());
         resultVoice = new Gson().fromJson(response.toString(),new TypeToken<ResultVoice>(){}.getType());
         if(resultVoice.getErr_no()==0)
         {
             String result = UtilTools.tranStrToUtf8(resultVoice.getResult().get(0));
-            resultVoice.setResultstr(result.substring(0,result.length()));
+            resultVoice.setResultstr(result.substring(0,result.length()-1));
         }
 
     }

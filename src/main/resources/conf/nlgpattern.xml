@@ -319,7 +319,8 @@
             <pattern>请您确认下座位类型哈，例如高铁的一等座，二等座，快车的硬座，硬卧，软卧等</pattern>
         </patterns>
         <patterns type="clarify_starttime">
-            <pattern>您准备什么时间出发呢</pattern>
+            <pattern>您准备什么具体时间出发呢</pattern>
+            <pattern>您具体啥时间出发呢</pattern>
         </patterns>
         <patterns type="clarify_arrivetime">
             <pattern>您要求什么时间抵达呢</pattern>
